@@ -1,0 +1,4 @@
+template<typename T> T modinv(T a, T md = 1e9 + 7) {
+    egcd(a, md);
+    return (x + md) % md;
+}

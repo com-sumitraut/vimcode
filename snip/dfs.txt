@@ -1,0 +1,12 @@
+int dis[sz], cnt[sz];
+vector <vector<int>> g;
+
+void dfs(int cur, int par) {
+    dis[cur] = dis[par] + 1;
+    for (auto it:g[cur]) {
+        if (it != par) {
+            dfs(it, cur);
+        }
+    }
+    cnt[par] += cnt[cur] + 1;
+}

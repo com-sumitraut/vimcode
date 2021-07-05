@@ -1,0 +1,29 @@
+class BIT2D {
+   public:
+    int n, m;
+    vector<vector<ll>> Ft;
+
+    BIT2D() {}
+
+    BIT2D(int n_, int m_) : n{n_}, m{m_}, Ft(n_, vector<ll>(m_)){}
+
+    void init() {}
+
+    void update(int x, int y, int val) {
+        for (int i = x; i < n; i += i & -i) {
+            for (int j = y; j < m; j += j & -j) {
+                Ft[i][j] += val;
+            }
+        }
+    }
+
+    int query(int x, int y) {
+        ll sum = 0;
+        for (int i = x; i > 0; i -= i & -i) {
+            for (int j = y; j > 0; j -= j & -j) {
+                sum += Ft[i][j];
+            }
+        }
+        return sum;
+    }
+};

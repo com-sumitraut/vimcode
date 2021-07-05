@@ -1,0 +1,20 @@
+void Dijstra(int v, vector<int> &d, vector<vector<pair<int, int>>> &g) {
+    set<pair<int, int>> St;
+    d[v] = 0;
+    St.emplace(0, v);
+    while (!St.empty()) {
+        auto cur = *St.begin(); //cur.first-->d and cur.second-->vertex
+        St.erase(St.begin());
+        for (auto &it:g[cur.second]) {
+            auto ds = it.second + cur.first;
+            if (ds < d[it.first]) {
+                auto f = St.find(make_pair(d[it.first], it.first));
+                if (f != St.end()) {
+                    St.erase(f);
+                }
+                d[it.first] = ds;
+                St.emplace(d[it.first], it.first);
+            }
+        }
+    }
+}

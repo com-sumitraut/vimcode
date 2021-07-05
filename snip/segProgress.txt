@@ -1,0 +1,95 @@
+vl ar;
+
+struct SgNode {
+    ll cnt,add, Mx, Mn;
+	SgNode() {}
+	SgNode(ll cnt_, ll add_, ll Mx_, ll Mn_):cnt{cnt_},add{add_},Mx{Mx_},Mn{Mn_} {}
+	// void assign(ll cnt_, ll add_, ll Mx_, ll Mn_) { cnt=cnt_,add=add_,Mx=Mx_,Mn=Mn_; }
+	void bMerge(const SgNode& lhs, const SgNode& rhs) {
+		Mx=max(lhs.Mx,rhs.Mx);
+		Mn=min(lhs.Mn,rhs.Mn);
+		cnt=lhs.cnt+rhs.cnt;
+		add=lhs.add+rhs.add+max(0ll, lhs.Mx-rhs.Mn)*rhs.cnt;
+	}
+};
+
+class SgTree {
+   public:
+    int szsg(int nn) {
+        --nn;
+        nn |= nn >> 1;
+        nn |= nn >> 2;
+        nn |= nn >> 4;
+        nn |= nn >> 8;
+        nn |= nn >> 16;
+        ++nn;
+        return nn << 1;
+    }
+
+    vector<SgNode> Sg;
+    int n;
+
+    SgTree(int n_) {
+        n = n_;
+        n_ = szsg(n_);
+        Sg.resize(n_);
+        build(0, 0, n - 1);
+    }
+
+	SgNode Single(ll cnt,ll add, ll Mx,ll Mn) {
+		SgNode single(cnt,add,Mx,Mn);
+		return single;
+	}
+
+    void build(int nd, int sl, int sr) {
+        int md = (sl + sr) >> 1, chl = nd << 1 | 1, chr = chl + 1;
+        if (sl == sr) {
+			Sg[nd]={1ll,0ll,ar[sl],ar[sl]};
+            return;
+        }
+        build(chl, sl, md);
+        build(chr, md + 1, sr);
+		Sg[nd].bMerge(Sg[chl], Sg[chr]);
+    }
+
+    // void apply(int id, ll add) {
+		
+    // }
+
+    // void propogate(int nd, int chl, int chr) {
+    //     if (Sg[nd].add == 0) return;
+    //     apply(chl, Sg[nd].add);
+    //     apply(chr, Sg[nd].add);
+    //     Sg[nd].add = 0;
+    // }
+
+    // void modify(int nd, int sl, int sr, int ql, int qr, ll add) {
+    //     int md = (sl + sr) >> 1, chl = nd << 1 | 1, chr = chl + 1;
+    //     if (sl != sr) propogate(nd, chl, chr);
+    //     if (qr < sl || sr < ql) return;
+    //     if (ql <= sl && sr <= qr) {
+    //         apply(nd, add);
+    //         return;
+    //     }
+    //     modify(chl, sl, md, ql, qr, add);
+    //     modify(chr, md + 1, sr, ql, qr, add);
+    //     Sg[nd].Mx = max(Sg[chl].Mx, Sg[chr].Mx);
+    // }
+
+    ll Rquery(int nd, int sl, int sr, int ql, int qr) {
+        int md = (sl + sr) >> 1, chl = nd << 1 | 1, chr = chl + 1;
+        if (sl != sr) propogate(nd, chl, chr);
+        if (qr < sl || sr < ql) return LLONG_MIN;
+        if (ql <= sl && sr <= qr) return Sg[nd].Mx;
+        return max(Rquery(chl, sl, md, ql, qr),
+                   Rquery(chr, md + 1, sr, ql, qr));
+    }
+
+    // ll Pquery(int nd, int sl, int sr, int idx) {
+    //     int md = (sl + sr) >> 1, chl = nd << 1 | 1, chr = chl + 1;
+    //     if (sl != sr) propogate(nd, chl, chr);
+    //     if (sl == sr)  return Sg[nd].Mx;
+    //     if (idx > md) return Pquery(chr, md + 1, sr, idx);
+    //     return Pquery(chl, sl, md, idx);
+    // }
+};

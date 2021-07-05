@@ -1,0 +1,142 @@
+// after using free dynamic memory in main
+typedef struct pr {
+    int x, y, fre;
+} pr;
+
+int cmp(const void *a, const void *b) {
+    return ((pr *) a)->x == ((pr *) b)->x ? ((pr *) a)->y > ((pr *) b)->y : ((pr *) a)->x > ((pr *) b)->x;
+}
+
+int Sz = 10007, sz[10007];
+pr *Hs[10007];
+pr arr[100000], a;
+
+int hashfun(pr p) {
+    int ind = (p.x % Sz + p.y % Sz) % Sz;
+    return ind < 0 ? -ind : ind;
+}
+
+int insertinhs(pr p) { // return 1 matlab pehle koi ocuurence nhi tha
+    // return >1 matlab pehle ocuurence tha
+    int ind = hashfun(p);
+    int i = 0;
+    while (i < sz[ind]) {
+        if (Hs[ind][i].x == p.x && Hs[ind][i].y == p.y) {
+            ++(Hs[ind][i].fre);
+            return Hs[ind][i].fre;
+        }
+        ++i;
+    }
+    p.fre = 1;
+    ++sz[ind];
+    Hs[ind] = (pr *) realloc(Hs[ind], sz[ind] * sizeof(pr));
+    Hs[ind][sz[ind] - 1] = p;
+    return 1;
+}
+
+int searchinhs(pr p) {
+    int ind = hashfun(p);
+    int i = 0;
+    while (i < sz[ind]) {
+        if (Hs[ind][i].x == p.x && Hs[ind][i].y == p.y) {
+            return Hs[ind][i].fre;
+        }
+        ++i;
+    }
+    return 0;
+}
+
+void deleteinhs(pr p) {
+    int ind = hashfun(p);
+    int i = 0;
+    while (i < sz[ind]) {
+        if (Hs[ind][i].x == p.x && Hs[ind][i].y == p.y) {
+            --sz[ind];
+            if (sz[ind]) {
+                Hs[ind][i] = Hs[ind][sz[ind]];
+                break;
+            }
+        }
+        ++i;
+    }
+}
+
+/*
+ 
+typedef struct pr {
+    int x, y, fre;
+} pr;
+typedef struct node {
+    pr p;
+    node *next;
+} node;
+
+int cmp(const void *a, const void *b) {
+    return ((pr *) a)->x == ((pr *) b)->x ? ((pr *) a)->y > ((pr *) b)->y : ((pr *) a)->x > ((pr *) b)->x;
+}
+
+int sz = 10007;
+node *Hs[10007];
+pr arr[100000], a;
+
+void insertinhs(node **first, pr p) {
+    node *new_node = (node *) malloc(sizeof(node));
+    if (new_node == NULL) {
+        perror("malloc fail\n");
+        exit(1);
+    }
+    new_node->p = p;
+    new_node->next = *first;
+    *first = new_node;
+}
+
+int hashfun(pr p, int n) {
+    int ind = (p.x % n + p.y % n) % n;
+    return ind < 0 ? -ind : ind;
+}
+
+int insertinhs(node *Hs[], int sz, pr p) {
+    int ind = hashfun(p, sz);
+    node *q = Hs[ind];
+    while (q) {
+        if (q->p.x == p.x && q->p.y == p.y) {
+            ++(q->p.fre);
+            return q->p.fre;
+        }
+        q = q->next;
+    }
+    p.fre = 1;
+    insertinhs(&Hs[ind], p);
+    return 1;
+}
+
+int searchinhs(node *Hs[], int sz, pr p) {
+    int ind = hashfun(p, sz);
+    node *q = Hs[ind];
+    while (q) {
+        if (q->p.x == p.x && q->p.y == p.y) {
+            return q->p.fre;
+        }
+        q = q->next;
+    }
+    return 0;
+}
+
+void deleteinhs(node *Hs[], int sz, pr p) {
+    int ind = hashfun(p, sz);
+    node *q = Hs[ind], *preptr = NULL;
+    while (q) {
+        if (q->p.x == p.x && q->p.y == p.y) {
+            if (preptr)
+                preptr->next = q->next;
+            else
+                Hs[ind] = q->next;
+            free(q);
+            break;
+        }
+        preptr = q;
+        q = q->next;
+    }
+}
+
+ */

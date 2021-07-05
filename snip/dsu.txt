@@ -1,0 +1,100 @@
+class dsu {
+public:
+    vector<int> par;
+
+    dsu() {}
+
+    dsu(int n_) : par(n_, -1) {}
+
+    dsu(const dsu &rhs) { par = rhs.par; }
+
+    int find(int cur) {
+        return par[cur] < 0 ? cur : (par[cur] = find(par[cur]));
+    }
+
+    bool Union(int a, int b) {
+        a = find(a), b = find(b);
+        if (a != b) {
+            if (par[a] > par[b])
+                swap(a, b);
+            par[a] += par[b];
+            par[b] = a;
+            return 1;
+        }
+        return 0;
+    }
+
+    bool isConnected(int a, int b) {
+        return find(a) == find(b);
+    }
+
+    int size(int a) {
+        return -par[find(a)];
+    }
+
+};
+
+//
+class dsu {
+    vector<int> par, sz;
+public:
+    dsu() {}
+
+    dsu(int n_) : par(n_), sz(n_, 1) {}
+
+    dsu(const dsu &rhs) { par = rhs.par, sz = rhs.sz; }
+
+    int find(int cur) {
+        return par[cur] == 0 ? cur : (par[cur] = find(par[cur]));
+    }
+
+    void Union(int a, int b) {
+        a = find(a), b = find(b);
+        if (a != b) {
+            if (sz[a] < sz[b])
+                swap(a, b);
+            sz[a] += sz[b];
+            sz[b] = 0;
+            par[b] = a;
+        }
+    }
+
+    bool isConnected(int a, int b) {
+        return find(a) == find(b);
+    }
+
+    int size(int a) {
+        return sz[find(a)];
+    }
+
+};
+// by rank
+class dsu {
+    vector<int> par, rank;
+public:
+    dsu() {}
+
+    dsu(int n_) : par(n_), rank(n_) {}
+
+    dsu(const dsu &rhs) { par = rhs.par, rank = rhs.rank; }
+
+    int find(int cur) {
+        return par[cur] == 0 ? cur : (par[cur] = find(par[cur]));
+    }
+
+    void Union(int a, int b) {
+        a = find(a), b = find(b);
+        if (a != b) {
+            if (rank[a] < rank[b])
+                swap(a, b);
+            if(rank[a] == rank[b])
+                ++rank[a];
+            par[b] = a;
+        }
+    }
+
+    bool isConnected(int a, int b) {
+        return find(a) == find(b);
+    }
+
+};

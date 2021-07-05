@@ -1,0 +1,45 @@
+#ifndef ONLINE_JUDGE
+
+class Timer {
+    clock_t start_t, end_t;
+public:
+    Timer() { start_t = clock(); }
+
+    ~Timer() {
+        end_t = clock();
+        double duration = 1e3 * (double) (end_t - start_t) / CLOCKS_PER_SEC;
+        cerr << "\nRunTime: " << duration << "ms" << '\n';
+    }
+};
+
+template<typename T>
+ostream &operator<<(ostream &cerr, const vector <T> &v) {
+    cerr << "[";
+    for (auto &it : v)
+        cerr << it << ' ';
+    cerr << "]";
+    return cerr;
+}
+
+template<typename T1, typename T2>
+ostream &operator<<(ostream &cerr, const vector <pair<T1, T2>> &v) {
+    cerr << "[";
+    for (auto &it : v)
+        cerr << "(" << it.first << ',' << it.second << ")" << ' ';
+    cerr << "]";
+    return cerr;
+}
+
+#define deb(args...) {  cerr << "["; string _s = #args; replace(_s.begin(), _s.end(), ',', ' '); stringstream _ss(_s); istream_iterator<string> _it(_ss);  debug(_it, args); cerr << "]\n"; }
+
+void debug(istream_iterator <string> it) {}
+
+template<typename T, typename... Args>
+void debug(istream_iterator <string> it, T a, Args... args) {
+    cerr << *it << "-->" << a << ' ';
+    debug(++it, args...);
+}
+
+#else
+#define deb(...) void(0)
+#endif

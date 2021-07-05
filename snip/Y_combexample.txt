@@ -1,0 +1,26 @@
+/*
+https://riptutorial.com/cplusplus/example/8508/recursive-lambdas
+http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0200r0.html
+*/
+int main() {
+  cout << y_combinator([](auto gcd, int a, int b) -> int {
+    return b == 0 ? a : gcd(b, a % b);
+  })(20,30) << "\n"; // outputs 10
+}
+
+/*
+auto foo = make_y_combinator( [&](auto&& recurse, some arguments) {
+  // write body that processes some arguments
+  // when you want to recurse, call recurse(some other arguments)
+});
+*/
+
+/*
+auto gcd = y_combinator(
+  [](auto&& gcd, int a, int b){
+    return b == 0 ? a : gcd(b, a%b);
+  }
+);
+
+then we I can do gc(4,5);
+*/

@@ -1,0 +1,15 @@
+void bfs(int v, vector <int> &d) {
+    queue<int> Qu;
+    Qu.push(v);
+    d[v] = 0;
+    while (!Qu.empty()) {
+        auto tmp = Qu.front();
+        Qu.pop();
+        for (auto &it:g[tmp]) {
+            if (d[it] == -1) {
+                d[it] = d[tmp] + 1;
+                Qu.push(it);
+            }
+        }
+    }
+}

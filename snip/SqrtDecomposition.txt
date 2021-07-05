@@ -1,0 +1,35 @@
+int blk = ceil(sqrt(n));
+vector<int> A(1000001), B(10001);
+auto preprocess = [&]() {
+    int curblk = -1;
+    for (int i = 0; i < n; ++i) {
+        if (i % blk == 0)
+            ++curblk;
+        B[curblk] += A[i];
+    }
+};
+auto query = [&](int ql, int qr) {
+    int sum = 0;
+    int cl = ql / blk, cr = qr / blk;
+    if (cl == cr) {
+        for (int i = ql; i <= qr; ++i) {
+            sum += A[i];
+        }
+    } else {
+        for (int i = ql, last = (cl + 1) * blk; i < last; ++i)
+            sum += A[i];
+        for (int i = cl + 1; i < cr; ++i)
+            sum += B[i];
+        for (int i = cr * blk; i <= qr; ++i)
+            sum += A[i];
+    }
+    return sum;
+};
+auto update = [&](int ind, int del) {
+    B[ind / blk] += del;
+    A[ind] += del;
+};
+auto update = [&](int ind, int newVal) {
+    B[ind / blk] = newVal - A[ind];
+    A[ind] = newVal;
+};

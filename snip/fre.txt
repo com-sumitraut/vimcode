@@ -1,0 +1,5 @@
+#ifndef ONLINE_JUDGE
+// freopen("d:\\topecoder\\int.txt","r",stdin);
+// freopen("d:\\topecoder\\out.txt","w",stdout);
+// freopen("d:\\topecoder\\err.txt","w",stderr);
+#endif

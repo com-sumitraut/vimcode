@@ -1,0 +1,65 @@
+class Queue {
+    vector<int> Qu;
+    int fr, re, Qsz, msz;
+
+public:
+    Queue(int sz = 100001) {
+        fr = re = Qsz = 0;
+        msz = sz;
+        Qu.resize(msz);
+        debug1(msz);
+    }
+
+    void Qpush(int vl) {
+        // if (Qsz && fr == re){
+        //     perror("Queue Overflow\n");
+        // }
+        assert(!Qsz || fr != re);
+        Qu[re++] = vl;
+        ++Qsz;
+        if (re == msz)
+            re = 0;
+    }
+
+    void Qpop() {
+        // if (Qsz == 0)
+        //     perror("Queue Underflow\n");
+        assert(!!Qsz);
+        ++fr;
+        --Qsz;
+        if (fr == msz)
+            fr = 0;
+        if (fr == re)
+            re = fr = 0;
+    }
+
+    int Qfront() {
+        // if (!Qsz)
+        //     perror("Queue Underflow\n");
+        assert(!!Qsz);
+        return Qu[fr];
+    }
+
+    int Qsize() {
+        return Qsz;
+    }
+
+    bool Qempty() {
+        return !Qsz;
+    }
+
+    void Qprint() {
+        if (Qempty()) {
+            cout << "empty\n";
+            return;
+        }
+        if (fr < re) {
+            for (int i = fr; i < re; ++i) cout << Qu[i] << ' ';
+            cout << '\n';
+        } else {
+            for (int i = fr; i < msz; ++i) cout << Qu[i] << ' ';
+            for (int i = 0; i < re; ++i) cout << Qu[i] << ' ';
+            cout << '\n';
+        }
+    }
+};

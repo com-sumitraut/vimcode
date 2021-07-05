@@ -1,0 +1,55 @@
+class dsu {
+    vector<pair<int, int>> par;
+    vector<int> sz, isBipartite;
+    bool isBip;
+
+public:
+    dsu() {}
+
+    dsu(int n_) : par(n_), sz(n_, 1), isBipartite(n_, 1), isBip{1} {
+        int p = 0;
+        for (auto &it : par)
+            it.first = p++, it.second = 0;
+    }
+
+    dsu(const dsu &rhs) {
+        par = rhs.par, sz = rhs.sz, isBipartite = rhs.isBipartite;
+    }
+
+    pair<int, int> find(int cur) {
+        if (par[cur].first != cur) {
+            int parity = par[cur].second;
+            par[cur] = find(par[cur].first);
+            par[cur].second ^= parity;
+        }
+        return par[cur];
+    }
+
+    void Union(int a, int b) {
+        auto pa = find(a);
+        a = pa.first;
+        int x = pa.second;
+
+        auto pb = find(b);
+        b = pb.first;
+        int y = pb.second;
+
+        if (a == b) {
+            if (x == y)
+                isBipartite[a] = 0, isBip = 0;
+        } else {
+            if (sz[a] < sz[b])
+                swap(a, b);
+            sz[a] += sz[b];
+            sz[b] = 0;
+            par[b] = make_pair(a, x ^ y ^ 1);
+            isBipartite[a] &= isBipartite[b];
+        }
+    }
+
+    bool isBipar() { return isBip; }
+
+    pair<int, int> ele(int index) {
+        return par[index];
+    }
+};

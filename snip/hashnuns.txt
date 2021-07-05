@@ -1,0 +1,48 @@
+int Sz = 10007, sz[10007];
+int *Hs[10007], arr[2000];
+
+int hashfun(int p) {
+    int ind = p % Sz;
+    return ind < 0 ? -ind : ind;
+}
+
+void insertinhs(int p) {
+    int ind = hashfun(p);
+    int i = 0;
+    while (i < sz[ind]) {
+        if (Hs[ind][i] == p) {
+            return;
+        }
+        ++i;
+    }
+    ++sz[ind];
+    Hs[ind] = (int *) realloc(Hs[ind], sz[ind] * sizeof(int));
+    Hs[ind][sz[ind] - 1] = p;
+}
+
+bool searchinhs(int p) {
+    int ind = hashfun(p);
+    int i = 0;
+    while (i < sz[ind]) {
+        if (Hs[ind][i] == p) {
+            return 1;
+        }
+        ++i;
+    }
+    return 0;
+}
+
+void deleteinhs(int p) {
+    int ind = hashfun(p);
+    int i = 0;
+    while (i < sz[ind]) {
+        if (Hs[ind][i] == p) {
+            --sz[ind];
+            if (sz[ind]) {
+                Hs[ind][i] = Hs[ind][sz[ind]];
+                break;
+            }
+        }
+        ++i;
+    }
+}

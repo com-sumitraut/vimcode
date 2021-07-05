@@ -1,0 +1,197 @@
+class Tree {
+    int n;
+    vector<int> Sg;
+public:
+    Tree(int n_, vector<int> &ar) {
+        n = n_;
+        Sg.resize(szsg(n) - 1);
+        build(0, 0, n - 1, ar);
+    }
+
+    int szsg(int nn) {
+        --nn;
+        nn |= nn >> 1;
+        nn |= nn >> 2;
+        nn |= nn >> 4;
+        nn |= nn >> 8;
+        nn |= nn >> 16;
+        ++nn;
+        return nn << 1;
+    }
+
+    void build(int nd, int sl, int sr, vector<int> &ar) {
+        if (sl == sr) {
+            Sg[nd] = ar[sl];
+            return;
+        }
+        int md = (sl + sr) >> 1, chl = nd << 1 | 1, chr = chl + 1;
+        build(chl, sl, md, ar);
+        build(chr, md + 1, sr, ar);
+        Sg[nd] = max(Sg[chl], Sg[chr]);
+    }
+
+    void update(int nd, int sl, int sr, int &idx, int &val) {
+        if (sl == sr) {
+            Sg[nd] = val;
+            return;
+        }
+        int md = (sl + sr) >> 1, chl = nd << 1 | 1, chr = chl + 1;
+        if (idx > md)
+            update(chr, md + 1, sr, idx, val);
+        else
+            update(chl, sl, md, idx, val);
+        Sg[nd] = max(Sg[chl], Sg[chr]);
+    }
+
+    int query(int nd, int sl, int sr, int ql, int qr) {
+        if (qr < sl || sr < ql)
+            return INT_MIN;
+        if (ql == sl && sr == qr)
+            return Sg[nd];
+        int md = (sl + sr) >> 1, chl = nd << 1 | 1, chr = chl + 1;
+        return max(query(chl, sl, md, ql, min(md, qr)), query(chr, md + 1, sr, max(md + 1, ql), qr));
+    }
+};
+//
+#define ll long long
+// #define ll int
+typedef ll item;
+class Segtree
+{
+    // void build(int nd, int sl, int sr, vector<item> &ar)
+    // {
+    //     if (sl == sr)
+    //     {
+    //         Sg[nd] = single(ar[sl]);
+    //         return;
+    //     }
+    //     int md = (sl + sr) >> 1;
+    //     build(nd << 1 | 1, sl, md, ar);
+    //     build((nd + 1) << 1, md + 1, sr, ar);
+    //     Sg[nd] = combine(Sg[nd << 1 | 1], Sg[(nd + 1) << 1]);
+    // }
+
+    // void update(int nd, int sl, int sr, int idx, item val)
+    // {
+    //     if (sl == sr)
+    //     {
+    //         Sg[nd] = single(val);
+    //         return;
+    //     }
+    //     int md = sl + (sr - sl) / 2;
+    //     if (idx > md)
+    //         update((nd + 1) << 1, md + 1, sr, idx, val);
+    //     else
+    //         update(nd << 1 | 1, sl, md, idx, val);
+    //     Sg[nd] = combine(Sg[nd << 1 | 1], Sg[(nd + 1) << 1]);
+    // }
+    // item query(int nd, int sl, int sr, int ql, int qr)
+    // {
+    //     if (qr < sl || sr < ql)
+    //     {
+    //         return Neutral_Element;
+    //     }
+    //     if (ql <= sl && sr <= qr)
+    //     {
+    //         return Sg[nd];
+    //     }
+    //     int md = (sl + sr) >> 1;
+    //     auto le = query(nd << 1 | 1, sl, md, ql, qr);
+    //     auto re = query((nd + 1) << 1, md + 1, sr, ql, qr);
+    //     return combine(le, re);
+    // }
+public:
+    int szsg(int nn)
+    {
+        --nn;
+        nn |= nn >> 1;
+        nn |= nn >> 2;
+        nn |= nn >> 4;
+        nn |= nn >> 8;
+        nn |= nn >> 16;
+        ++nn;
+        return nn << 1;
+    }
+    vector<ll> operations;
+    vector<item> Sg;
+    vector<item> ar;
+    int n;
+    Segtree()
+    {
+        // cin >> n;
+        // ar.resize(n);
+        // for (auto &it : ar)
+        // cin >> it;
+        // Sg.resize(szsg(n) - 1);
+        // build(0, 0, n - 1);
+    }
+    void init(int N)
+    {
+        N=szsg(N);
+        operations.resize(N-1, No_Operation);
+        Sg.resize(N - 1, 0);
+    }
+
+    item Neutral_Element = 0;
+
+    item single(const item &val)
+    {
+        return val;
+    }
+
+    item combine(const item &lv, const item &rv)
+    {
+        return lv + rv;
+    }
+
+    ll No_Operation = INT_MIN;
+    ll operation(ll a, ll b)
+    {
+        if(b==No_Operation) return a;
+        return b;
+    }
+    void apply_operation(ll &a, ll b)
+    {
+        a = operation(a, b);
+    }
+    void propogate(int nd, int sl, int sr)
+    {
+        if(operations[nd]==No_Operation) return;
+        Sg[nd]=(sr-sl+1)*operations[nd];
+        if (sl != sr){
+            apply_operation(operations[nd << 1 | 1], operations[nd]);
+            apply_operation(operations[(nd + 1) << 1], operations[nd]);
+        }
+        operations[nd] = No_Operation;
+    }
+    void modify(int nd, int sl, int sr, int ql, int qr, ll val)
+    {
+        propogate(nd, sl, sr);
+        if (qr < sl || sr < ql)
+            return;
+        if (ql <= sl && sr <= qr)
+        {
+            Sg[nd]=(sr-sl+1)*val;
+            if(sl!=sr) {
+                apply_operation(operations[nd<<1|1],val);
+                apply_operation(operations[(nd+1)<<1],val);
+            }
+            return;
+        }
+        int md = (sl + sr) >> 1;
+        modify(nd << 1 | 1, sl, md, ql, qr, val);
+        modify((nd + 1) << 1, md + 1, sr, ql, qr, val);
+        Sg[nd]=combine(Sg[nd<<1|1],Sg[(nd+1)<<1]);
+    }
+    item get(int nd, int sl, int sr, int ql,int qr)
+    {
+        propogate(nd, sl, sr);
+        if(qr<sl||sr<ql) return Neutral_Element;
+        if (ql<=sl && sr<=qr)
+            return Sg[nd];
+        int md = (sl + sr) >> 1;
+        auto le=get(nd<<1|1,sl,md,ql,qr);
+        auto re=get((nd+1)<<1,md+1,sr,ql,qr);
+        return combine(le,re);
+    }
+};

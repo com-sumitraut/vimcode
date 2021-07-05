@@ -1,0 +1,3 @@
+#define debug1(x) cerr<<#x<<' '<<x<<'\n'
+#define debug2(x, y) cerr<<#x<<' '<<x<<' '<<#y<<' '<<y<<'\n'
+#define debug3(x, y, z) cerr<<#x<<' '<<x<<' '<<#y<<' '<<y<<' '<<#z<<' '<<z<<'\n'

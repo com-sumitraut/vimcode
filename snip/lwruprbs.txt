@@ -1,0 +1,34 @@
+int lwrbnd(int arr[], int l, int n, int val) {
+    int m;
+    while (l < n) {
+        m = l + (n - l) / 2;
+        if (arr[m] < val)
+            l = m + 1;
+        else
+            n = m;
+    }
+    return l;
+}
+
+int uprbnd(int arr[], int l, int n, int val) {
+    int m;
+    while (l < n) {
+        m = l + (n - l) / 2;
+        if (arr[m] > val)
+            n = m;
+        else
+            l = m + 1;
+    }
+    return l;
+}
+
+int bs(int arr[], int l, int n, int val) {
+    int m, nt = n;
+    while (l < n) {
+        m = l + (n - l) / 2;
+        if (arr[m] == val) return m;
+        if (arr[m] < val) l = m + 1;
+        else n = m;
+    }
+    return nt;
+}

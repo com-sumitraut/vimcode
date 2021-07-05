@@ -1,0 +1,1 @@
+template<typename T> void smax(T& a, T b) { if(a<b) a=b; }

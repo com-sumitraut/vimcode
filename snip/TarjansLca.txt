@@ -1,0 +1,55 @@
+class dsu {
+    vector<int> par, rank;
+public:
+    dsu() {}
+
+    dsu(int n_) : par(n_), rank(n_) {}
+
+    dsu(const dsu &rhs) { par = rhs.par, rank = rhs.rank; }
+
+    int find(int cur) {
+        return par[cur] == 0 ? cur : (par[cur] = find(par[cur]));
+    }
+
+    void Union(int a, int b) {
+        a = find(a), b = find(b);
+        if (a != b) {
+            if (rank[a] < rank[b])
+                swap(a, b);
+            if (rank[a] == rank[b])
+                ++rank[a];
+            par[b] = a;
+        }
+    }
+};
+vector<vector<int>>Lca;
+class TarjansLca {
+
+public:
+    TarjansLca() {}
+
+    void algo(const int &n, const vector<vector<int>> &g, const vector<vector<int>> &que) {
+        // for(int i=0;i<n;++i)
+        //     deb(i,g[i]);
+        dsu Su(n);
+        vector<int> vis(n), ancestor(n);
+        function<void(int)> dfs = [&](int v) {
+            vis[v] = 1;
+            ancestor[v] = v;
+            for (auto &u:g[v]) {
+                if (!vis[u]) {
+                    dfs(u);
+                    Su.Union(v, u);
+                    ancestor[Su.find(v)] = v;
+                }
+            }
+            for (auto &u:que[v]) {
+                if (vis[u]) {
+                    deb(u, v, ancestor[Su.find(u)]);
+                    Lca[u][v] = Lca[v][u] = ancestor[Su.find(u)];
+                }
+            }
+        };
+        dfs(0);
+    }
+};

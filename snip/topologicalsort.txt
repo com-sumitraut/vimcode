@@ -1,0 +1,106 @@
+class topo {
+public:
+    vector <vector<int>> adj;
+    vector<bool> vis;
+    vector<int> indegree;
+    int n;
+
+    topo() {
+        int m;
+        cin >> n >> m;
+        vis.resize(n);
+        adj.resize(n);
+        indegree.resize(n);
+        int u, v;
+        while (m--) {
+            cin >> u >> v;
+            adj[u - 1].push_back(v - 1);
+            ++indegree[v - 1];
+        }
+    }
+
+    void algo() {
+        priority_queue<int, vector<int>, greater<int>> Qu;
+        vector<int> topsort;
+        for (int v = 0; v < n; ++v) {
+            if (!indegree[v]) {
+                Qu.push(v);
+                vis[v] = 1;
+            }
+        }
+        while (!Qu.empty()) {
+            int cur = Qu.top();
+            Qu.pop();
+            topsort.emplace_back(cur);
+            for (auto &it:adj[cur]) {
+                if (!vis[it]) {
+                    --indegree[it];
+                    if (!indegree[it]) {
+                        Qu.push(it);
+                        vis[it] = 1;
+                    }
+                }
+            }
+        }
+        for (auto &it:topsort) {
+            cout << it + 1 << ' ';
+        }
+        cout << '\n';
+    }
+};
+
+// cycle is there then print IMPOSSIBLE
+class topo {
+public:
+    vector <vector<int>> adj;
+    vector<bool> vis;
+    vector<int> indegree;
+    int n;
+
+    topo() {
+        int m;
+        cin >> n >> m;
+        vis.resize(n);
+        adj.resize(n);
+        indegree.resize(n);
+        int u, v;
+        while (m--) {
+            cin >> u >> v;
+            adj[u - 1].push_back(v - 1);
+            ++indegree[v - 1];
+        }
+    }
+
+    void algo() {
+        priority_queue<int, vector<int>, greater<int>> Qu;
+        vector<int> topsort;
+        for (int v = 0; v < n; ++v) {
+            if (!indegree[v]) {
+                Qu.push(v);
+                vis[v] = 1;
+            }
+        }
+        while (!Qu.empty()) {
+            int cur = Qu.top();
+            Qu.pop();
+            topsort.emplace_back(cur);
+            for (auto &it : adj[cur]) {
+                if (!vis[it]) {
+                    --indegree[it];
+                    if (!indegree[it]) {
+                        Qu.push(it);
+                        vis[it] = 1;
+                    }
+                }
+            }
+        }
+        if (topsort.size() == n) {
+            for (auto &it : topsort) {
+                cout << it + 1 << ' ';
+            }
+            cout << '\n';
+        } else {
+            cout << "IMPOSSIBLE\n";
+        }
+    }
+};

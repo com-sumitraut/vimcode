@@ -1,0 +1,67 @@
+class Z
+{
+public:
+    int algo(string P, string T)
+    {
+        string str = P + "#" + T;
+        cout << str << '\n';
+        int l = 0, r = 0, i = 1, n = str.length(), np = P.length();
+        vector<int> z(n);
+        z[0] = 0;
+        int cnt = 0;
+        while (i < n) {
+            if (i <= r) {
+                z[i] = min(z[i - l], r - i + 1);
+            }
+            while (i + z[i] < n && str[z[i]] == str[i + z[i]])
+                ++z[i];
+            if (i + z[i] - 1 > r) {
+                l = i, r = i + z[i] - 1;
+            }
+            if (z[i] == np) {
+                ++cnt;
+            }
+            ++i;
+        }
+        return cnt;
+    }
+};
+
+class Z
+{
+public:
+    int algo(string P, string T)
+    {
+        string str = P + "#" + T;
+        cout << str << '\n';
+        int l = 0, r = 0, i = 1, n = str.length(), np = P.length();
+        vector<int> z(n);
+        z[0] = 0;
+        int cnt = 0;
+        while (i < n) {
+            if (i > r) {
+                l = r = i;
+                while (r < n && str[r - l] == str[r])
+                    ++r;
+                z[i] = r - l;
+                --r;
+            } else {
+                int k = i - l;
+                if (z[k] < r - i + 1) {
+                    z[i] = z[k];
+                } else {
+                    l = i;
+                    while (r < n && str[r - l] == str[r])
+                        ++r;
+                    z[i] = r - l;
+                    --r;
+                }
+            }
+            if (z[i] == np) {
+                ++cnt;
+            }
+            ++i;
+        }
+        return cnt;
+    }
+};

@@ -1,0 +1,1851 @@
+//node version
+class Vertex { // [lower,upper)
+public:
+    int sl, sr;
+    int Sg = 0;
+    Vertex *lch = nullptr, *rch = nullptr;
+
+    Vertex(int lb, int rb) {
+        sl = lb;
+        sr = rb;
+    }
+
+    void build(vector<int> &ar) {
+        if (sl + 1 == sr) {
+            Sg = ar[sl];
+            return;
+        }
+        int md = (sl + sr) >> 1;
+        lch = new Vertex(sl, md);
+        rch = new Vertex(md, sr);
+        lch->build(ar);
+        rch->build(ar);
+        Sg = min(lch->Sg, rch->Sg);
+    }
+
+    void update(int idx, int vl) {
+        if (sl + 1 == sr) {
+            Sg = vl;
+            return;
+        }
+        if (idx < lch->sr)
+            lch->update(idx, vl);
+        else
+            rch->update(idx, vl);
+        Sg = min(lch->Sg, rch->Sg);
+    }
+
+    int query(int ql, int qr) {
+        if (qr <= sl || sr <= ql) {
+            return INT_MAX;
+        }
+        if (ql == sl && sr == qr) {
+            return Sg;
+        }
+        return min(lch->query(ql, min(qr, lch->sr)),
+                   rch->query(max(ql, rch->sl), qr));
+    }
+
+    void fi() {
+        if (sl + 1 == sr)
+            return;
+        int md = (sl + sr) >> 1;
+        lch->fi();
+        rch->fi();
+        delete lch;
+        delete rch;
+    }
+};
+
+void solve() {
+    int n, q;
+    cin >> n >> q;
+    vector<int> ar(n);
+    cin >> ar;
+    Vertex *Seg = new Vertex(0, n);
+    Seg->build(ar);
+    while (q--) {
+        char op;
+        cin >> op;
+        if (op == 'q') {
+            int l, r;
+            cin >> l >> r;
+            --l;
+            cout << Seg->query(l, r) << '\n';
+        } else {
+            int x, y;
+            cin >> x >> y;
+            --x;
+            Seg->update(x, y);
+        }
+    }
+//   Seg->fi();
+//   delete Seg;
+}
+
+//
+int szsg(int nn) {
+    --nn;
+    nn |= nn >> 1;
+    nn |= nn >> 2;
+    nn |= nn >> 4;
+    nn |= nn >> 8;
+    nn |= nn >> 16;
+    ++nn;
+    return nn << 1;
+}
+
+class MergeSortTree {
+    int n, sn;
+    vector <vector<int>> sgmnt;
+
+public:
+    MergeSortTree() {
+
+    }
+
+    void init(int n_, vector<int> &d) {
+        n = n_;
+        sn = sizeofsg(n) - 1;
+        sgmnt.resize(sn);
+        buildsg(0, 0, n - 1, d);
+    }
+    // void merge(int root, int left, int right)
+    // {
+    //     int i = 0, j = 0, nl = sgmnt[left].size(), nr = sgmnt[right].size();
+    //     while (i < nl && j < nr)
+    //     {
+    //         if (sgmnt[left][i] < sgmnt[right][j])
+    //             sgmnt[root].push_back(sgmnt[left][i]), ++i;
+    //         else
+    //             sgmnt[root].push_back(sgmnt[right][j]), ++j;
+    //     }
+    //     while (i < nl)
+    //         sgmnt[root].push_back(sgmnt[left][i]), ++i;
+    //     while (j < nr)
+    //         sgmnt[root].push_back(sgmnt[right][j]), ++j;
+    //     // if(i<nl)
+    //     //     sgmnt[root].insert(sgmnt[root].end(),sgmnt[left].begin()+i,sgmnt[left].end());
+    //     // if(j<nr)
+    //     //     sgmnt[root].insert(sgmnt[root].end(),sgmnt[right].begin()+j,sgmnt[right].end());
+    // }
+
+    void buildsg(int nd, int sl, int sr, vector<int> &d) {
+        if (sl == sr) {
+            sgmnt[nd].push_back(d[sl]);
+            return;
+        }
+
+        int mid = (sl + sr) >> 1;
+        buildsg(nd << 1 | 1, sl, mid, d);
+        buildsg((nd + 1) << 1, mid + 1, sr, d);
+        merge(sgmnt[nd << 1 | 1].begin(), sgmnt[nd << 1 | 1].end(), sgmnt[(nd + 1) << 1].begin(),
+              sgmnt[(nd + 1) << 1].end(), back_inserter(sgmnt[nd]));
+        // merge(nd, nd << 1 | 1, (nd + 1) << 1);
+    }
+
+    int query(int nd, int sl, int sr, int ql, int qr, int &m) {
+        if (qr < sl || sr < ql)
+            return 0;
+        if (ql <= sl && sr <= qr)
+            return upper_bound(sgmnt[nd].begin(), sgmnt[nd].end(), m) - sgmnt[nd].begin();
+        int mid = (sl + sr) >> 1;
+        return query(nd << 1 | 1, sl, mid, ql, qr, m) + query((nd + 1) << 1, mid + 1, sr, ql, qr, m);
+    }
+};
+
+class MergeSortTree {
+    int n, sn;
+    vector <vector<int>> sgmnt;
+
+public:
+    MergeSortTree() {
+
+    }
+
+    void init(vector<int> &d) {
+        sgmnt.resize(sn);
+        buildsg(0, 0, n - 1, d);
+    }
+    // void merge(int root, int left, int right)
+    // {
+    //     int i = 0, j = 0, nl = sgmnt[left].size(), nr = sgmnt[right].size();
+    //     while (i < nl && j < nr)
+    //     {
+    //         if (sgmnt[left][i] < sgmnt[right][j])
+    //             sgmnt[root].push_back(sgmnt[left][i]), ++i;
+    //         else
+    //             sgmnt[root].push_back(sgmnt[right][j]), ++j;
+    //     }
+    //     while (i < nl)
+    //         sgmnt[root].push_back(sgmnt[left][i]), ++i;
+    //     while (j < nr)
+    //         sgmnt[root].push_back(sgmnt[right][j]), ++j;
+    //     // if(i<nl)
+    //     //     sgmnt[root].insert(sgmnt[root].end(),sgmnt[left].begin()+i,sgmnt[left].end());
+    //     // if(j<nr)
+    //     //     sgmnt[root].insert(sgmnt[root].end(),sgmnt[right].begin()+j,sgmnt[right].end());
+    // }
+
+    void buildsg(int nd, int sl, int sr, vector<int> &d) {
+        if (sl == sr) {
+            sgmnt[nd].push_back(d[sl]);
+            return;
+        }
+
+        int mid = (sl + sr) >> 1;
+        buildsg(nd << 1 | 1, sl, mid, d);
+        buildsg((nd + 1) << 1, mid + 1, sr, d);
+        merge(sgmnt[nd << 1 | 1].begin(), sgmnt[nd << 1 | 1].end(), sgmnt[(nd + 1) << 1].begin(),
+              sgmnt[(nd + 1) << 1].end(), back_inserter(sgmnt[nd]));
+        // merge(nd, nd << 1 | 1, (nd + 1) << 1);
+    }
+
+    int query(int nd, int sl, int sr, int ql, int qr, int &m) {
+        if (qr < sl || sr < ql)
+            return 0;
+        if (ql <= sl && sr <= qr)
+            return upper_bound(sgmnt[nd].begin(), sgmnt[nd].end(), m) - sgmnt[nd].begin();
+        int mid = (sl + sr) >> 1;
+        return query(nd << 1 | 1, sl, mid, ql, qr, m) + query((nd + 1) << 1, mid + 1, sr, ql, qr, m);
+    }
+};
+
+class SegmentTree {
+    vector<int> sgmnt;
+
+public:
+    SegmentTree(int n = 0) {
+        // int sn = (n & (n - 1)) ? (1 << ((int)log2(n) + 2)) - 1 : (n << 1) - 1; // 2* nextpowerof2lesorequal -1
+        int sn = 4 * n - 1; //approx leke chalenge
+        sgmnt.resize(sn);
+    }
+
+    void buildsg(int node, int sl, int sr, vector<int> &arr) {
+        if (sl == sr) {
+            sgmnt[node] = arr[sl];
+            return;
+        }
+        int mid = sl + (sr - sl) / 2;
+        buildsg(node << 1 | 1, sl, mid, arr);
+        buildsg((node + 1) << 1, mid + 1, sr, arr);
+        sgmnt[node] = min(sgmnt[node << 1 | 1], sgmnt[(node + 1) << 1]);
+    }
+
+    void update(int node, int sl, int sr, int &idx, int &val) {
+        if (sl == sr) {
+            sgmnt[node] = val;
+            return;
+        }
+        int mid = sl + (sr - sl) / 2;
+        if (idx > mid)
+            update((node + 1) << 1, mid + 1, sr, idx, val);
+        else
+            update(node << 1 | 1, sl, mid, idx, val);
+        sgmnt[node] = min(sgmnt[node << 1 | 1], sgmnt[(node + 1) << 1]);
+    }
+
+    int query(int node, int sl, int sr, int &ql, int &qr) {
+        if (qr < sl || sr < ql) {
+            return INT_MAX;
+        }
+        if (ql <= sl && sr <= qr) {
+            return sgmnt[node];
+        }
+        int mid = sl + (sr - sl) / 2;
+        int le = query(node << 1 | 1, sl, mid, ql, qr);
+        int re = query((node + 1) << 1, mid + 1, sr, ql, qr);
+        return min(le, re);
+    }
+};
+
+class Segmenttree {
+    vector<int> sgmnt, arr;
+
+public:
+    Segmenttree(int n = 0) {
+        // int sn = (n & (n - 1)) ? (1 << ((int)log2(n) + 2)) - 1 : (n << 1) - 1; // 2* nextpowerof2lesorequal -1
+        arr.resize(n);
+        for (auto &it : arr)
+            cin >> it;
+        int sn = 4 * n - 1; //approx leke chalenge
+        sgmnt.resize(sn);
+    }
+
+    void buildsg(int node, int sl, int sr) {
+        if (sl == sr) {
+            sgmnt[node] = arr[sl];
+            return;
+        }
+        int mid = sl + (sr - sl) / 2;
+        buildsg(node << 1 | 1, sl, mid);
+        buildsg((node + 1) << 1, mid + 1, sr);
+        sgmnt[node] = min(sgmnt[node << 1 | 1], sgmnt[(node + 1) << 1]);
+    }
+
+    void update(int node, int sl, int sr, int &idx, int &val) {
+        if (sl == sr) {
+            sgmnt[node] = val;
+            return;
+        }
+        int mid = sl + (sr - sl) / 2;
+        if (idx > mid)
+            update((node + 1) << 1, mid + 1, sr, idx, val);
+        else
+            update(node << 1 | 1, sl, mid, idx, val);
+        sgmnt[node] = min(sgmnt[node << 1 | 1], sgmnt[(node + 1) << 1]);
+    }
+
+    int query(int node, int sl, int sr, int &ql, int &qr) {
+        if (qr < sl || sr < ql) {
+            return INT_MAX;
+        }
+        if (ql <= sl && sr <= qr) {
+            return sgmnt[node];
+        }
+        int mid = sl + (sr - sl) / 2;
+        int le = query(node << 1 | 1, sl, mid, ql, qr);
+        int re = query((node + 1) << 1, mid + 1, sr, ql, qr);
+        return min(le, re);
+    }
+};
+
+class segmenttree {
+    vector<int> sgmnt, arr, lazy;
+
+public:
+    segmenttree(int n = 0) {
+        arr.resize(n);
+        for (auto &it : arr)
+            cin >> it;
+        int sn = 4 * n - 1;
+        sgmnt.resize(sn);
+        lazy.resize(sn);
+    }
+
+    void buildsg(int node, int sl, int sr) {
+        if (sl == sr) {
+            sgmnt[node] = arr[sl];
+            return;
+        }
+        int mid = sl + (sr - sl) / 2;
+        buildsg(node << 1 | 1, sl, mid);
+        buildsg((node + 1) << 1, mid + 1, sr);
+        sgmnt[node] = min(sgmnt[node << 1 | 1], sgmnt[(node + 1) << 1]);
+    }
+
+    void marklazy(int node, int sl, int sr, int ql, int qr, int val) {
+        if (lazy[node] != 0) {
+            sgmnt[node] += lazy[node];
+            if (sl != sr) {
+                lazy[node << 1 | 1] += lazy[node];
+                lazy[(node + 1) << 1] += lazy[node];
+            }
+            lazy[node] = 0;
+        }
+        if (qr < sl || sr < ql)
+            return;
+        if (ql <= sl && sr <= qr) {
+            sgmnt[node] += val;
+            if (sl != sr) {
+                lazy[node << 1 | 1] += val;
+                lazy[(node + 1) << 1] += val;
+            }
+            return;
+        }
+        int mid = sl + (sr - sl) / 2;
+        marklazy(node << 1 | 1, sl, mid, ql, qr, val);
+        marklazy((node + 1) << 1, mid + 1, sr, ql, qr, val);
+        sgmnt[node] = min(sgmnt[node << 1 | 1], sgmnt[(node + 1) << 1]);
+    }
+
+    ll lazyquery(int node, int sl, int sr, int ql, int qr) {
+        if (lazy[node] != 0) {
+            sgmnt[node] += lazy[node];
+            if (sl != sr) {
+                lazy[node << 1 | 1] += lazy[node];
+                lazy[(node + 1) << 1] += lazy[node];
+            }
+            lazy[node] = 0;
+        }
+        if (qr < sl || sr < ql) {
+            return INT_MAX;
+        }
+        if (ql <= sl && sr <= qr) {
+            return sgmnt[node];
+        }
+        int mid = sl + (sr - sl) / 2;
+        return min(lazyquery(node << 1 | 1, sl, mid, ql, qr), lazyquery((node + 1) << 1, mid + 1, sr, ql, qr));
+    }
+};
+
+class Sgit {
+    vector<int> tree, ar;
+    int n;
+public:
+    Sgit(int nn = 0) {
+        n = nn;
+        ar.resize(n);
+        for (auto &it:ar) cin >> it;
+        tree.resize(2 * n);
+    }
+
+    void build() {
+        for (int i = n, j = 0; j < n; ++j, ++i)
+            tree[i] = ar[j];
+        for (int i = n - 1; i > 0; --i)
+            tree[i] = tree[i << 1] + tree[i << 1 | 1];
+    }
+
+    void update(int i, int val) {
+        i += n;
+        tree[i] = val;
+        int lc, rc;
+        while (i > 0) {
+            if (i & 1)
+                lc = i - 1, rc = i;
+            else
+                lc = i, rc = i + 1;
+            i /= 2;
+            tree[i] = tree[lc] + tree[rc];
+        }
+    }
+
+    int query(int l, int r) {
+        l += n;
+        r += n;
+        int ans = 0;
+        while (l <= r) {
+            if (l & 1)
+                ans += tree[l++];
+            if (!(r & 1))
+                ans += tree[r--];
+            l >>= 1;
+            r >>= 1;
+        }
+        return ans;
+    }
+};
+
+class Queue {
+    vector<int> Qu;
+    int fr, re, Qsz, msz;
+
+public:
+    Queue(int sz = 100001) {
+        fr = re = Qsz = 0;
+        msz = sz;
+        Qu.resize(msz);
+        debug1(msz);
+    }
+
+    void Qpush(int vl) {
+        // if (Qsz && fr == re){
+        //     perror("Queue Overflow\n");
+        // }
+        assert(!Qsz || fr != re);
+        Qu[re++] = vl;
+        ++Qsz;
+        if (re == msz)
+            re = 0;
+    }
+
+    void Qpop() {
+        // if (Qsz == 0)
+        //     perror("Queue Underflow\n");
+        assert(!!Qsz);
+        ++fr;
+        --Qsz;
+        if (fr == msz)
+            fr = 0;
+        if (fr == re)
+            re = fr = 0;
+    }
+
+    int Qfront() {
+        // if (!Qsz)
+        //     perror("Queue Underflow\n");
+        assert(!!Qsz);
+        return Qu[fr];
+    }
+
+    int Qsize() {
+        return Qsz;
+    }
+
+    bool Qempty() {
+        return !Qsz;
+    }
+
+    void Qprint() {
+        if (Qempty()) {
+            cout << "empty\n";
+            return;
+        }
+        if (fr < re) {
+            for (int i = fr; i < re; ++i) cout << Qu[i] << ' ';
+            cout << '\n';
+        } else {
+            for (int i = fr; i < msz; ++i) cout << Qu[i] << ' ';
+            for (int i = 0; i < re; ++i) cout << Qu[i] << ' ';
+            cout << '\n';
+        }
+    }
+};
+
+class USet {
+public:
+    int Sz = 10007, sz[10007];
+    int *Hs[10007];
+
+    int hashfun(int p) {
+        int ind = p % Sz;
+        return ind < 0 ? -ind : ind;
+    }
+
+    int beg() {
+        for (int i = 0; i < Sz; ++i)
+            if (sz[i]) {
+                int tmp = Hs[i][0];
+                --sz[i];
+                free(Hs[i]);
+                return tmp;
+            }
+        return 0;
+    }
+
+    void insertinhs(int p) {
+        int ind = hashfun(p);
+        int i = 0;
+        while (i < sz[ind]) {
+            if (Hs[ind][i] == p) {
+                return;
+            }
+            ++i;
+        }
+        ++sz[ind];
+        Hs[ind] = (int *) realloc(Hs[ind], sz[ind] * sizeof(int));
+        Hs[ind][sz[ind] - 1] = p;
+    }
+
+    bool searchinhs(int p) {
+        int ind = hashfun(p);
+        int i = 0;
+        while (i < sz[ind]) {
+            if (Hs[ind][i] == p) {
+                return 1;
+            }
+            ++i;
+        }
+        return 0;
+    }
+
+    void deleteinhs(int p) {
+        int ind = hashfun(p);
+        int i = 0;
+        while (i < sz[ind]) {
+            if (Hs[ind][i] == p) {
+                --sz[ind];
+                if (sz[ind]) {
+                    Hs[ind][i] = Hs[ind][sz[ind]];
+                    Hs[ind] = (int *) realloc(Hs[ind], sz[ind] * sizeof(int));
+                } else {
+                    free(Hs[ind]);
+                }
+                break;
+            }
+            ++i;
+        }
+    }
+};
+
+unordered_map <ll, ll> fib;
+
+ll f(ll n) {
+    if (fib.count(n))
+        return fib[n] % mod;
+    ll k = n / 2;
+    if (n % 2 == 0)
+        return fib[n] = (f(k) * f(k) + f(k - 1) * f(k - 1)) % mod;
+    return fib[n] = (f(k) * f(k + 1) + f(k - 1) * f(k)) % mod;
+}
+
+int gcdsh(int x, int y) {
+    if (!y)
+        return x;
+    while (y) {
+        x %= y;
+        if (!x)
+            return y;
+        y %= x;
+    }
+    return x;
+}
+
+class Bellmanford {
+    int n, m;
+    vector <array<int, 3>> edge;
+    vector<int> dis;
+
+public:
+    Bellmanford() {
+        cin >> n >> m;
+        edge.resize(m);
+        dis.resize(n, INT_MAX);
+        for (auto &it : edge)
+            cin >> it[0] >> it[1] >> it[2];
+    }
+
+    bool algo(int src) {
+        dis[src] = 0;
+        for (int i = 0; i < n; ++i) {
+            for (int j = 0; j < m; ++j) {
+                if (dis[edge[j][0]] != INT_MAX && dis[edge[j][0]] + edge[j][2] < dis[edge[j][1]])
+                    dis[edge[j][1]] = dis[edge[j][0]] + edge[j][2];
+            }
+        }
+        for (int j = 0; j < m; ++j) {
+            if (dis[edge[j][0]] != INT_MAX && dis[edge[j][0]] + edge[j][2] < dis[edge[j][1]])
+                return 1;
+        }
+        return 0;
+    }
+};
+
+class FloydWarshall {
+    int n;
+    vector <vector<int>> mat;
+public:
+    FloydWarshall() {
+        cin >> n;
+        mat.resize(n, vector<int>(n));
+        for (auto &itm:mat)
+            for (auto &it:itm)
+                cin >> it;
+    }
+
+    void algo() {
+        for (int k = 0; k < n; ++k)
+            for (int i = 0; i < n; ++i)
+                for (int j = 0; j < n; ++j)
+                    if (mat[i][j] < mat[i][k] + mat[k][j])
+                        mat[i][j] = mat[i][k] + mat[k][j];
+    }
+
+    void print() {
+        for (auto &itm : mat) {
+            for (auto &it : itm)
+                cout << it << ' ';
+            cout << '\n';
+        }
+    }
+};
+
+
+class BIT {
+    int n;
+    vector<int> Ft, arr;
+public:
+    BIT(int N = 0) {
+        n = N;
+        Ft.resize(n);
+        arr.resize(n);
+        // for(int i=1;i<n;++i) {
+        //     cin>>arr[i];
+        //     update(i,sbc(arr[i]));
+        // }
+    }
+
+    void update(int x, int val) {
+        while (x < n) {
+            Ft[x] += val;
+            x += x & -x;
+        }
+    }
+
+    int query(int x) {
+        int sum = 0;
+        while (x > 0) {
+            sum += Ft[x];
+            x -= x & -x;
+        }
+        return sum;
+    }
+};
+
+// ye tle dega isiliye bitset ka use karenge;
+class Tree {
+    vector <unordered_set<int>> Sg;
+
+public:
+
+    int szsg(int nn) {
+        --nn;
+        nn |= nn >> 1;
+        nn |= nn >> 2;
+        nn |= nn >> 4;
+        nn |= nn >> 8;
+        nn |= nn >> 16;
+        ++nn;
+        return nn << 1;
+    }
+
+    int n, sn;
+    unordered_set<int> ans;
+
+    void init(vector<int> &arr) {
+        Sg.resize(sn);
+        buildsg(1, 1, n, arr);
+    }
+
+    void buildsg(int nd, int sl, int sr, vector<int> &arr) {
+        if (sl == sr) {
+            Sg[nd].insert(arr[sl]);
+            return;
+        }
+        int m = (sl + sr) >> 1;
+        buildsg(nd << 1, sl, m, arr);
+        buildsg(nd << 1 | 1, m + 1, sr, arr);
+        for (int i = sl; i <= sr; ++i)
+            Sg[nd].insert(arr[i]);
+    }
+
+    void query(int nd, int sl, int sr, int ql, int qr) {
+        if (qr < sl || sr < ql)
+            return;
+        if (sl == ql && sr == qr) {
+            for (auto &it : Sg[nd])
+                ans.insert(it);
+            return;
+        }
+        int m = (sl + sr) >> 1;
+        query(nd << 1, sl, m, ql, min(qr, m));
+        query(nd << 1 | 1, m + 1, sr, max(ql, m + 1), qr);
+    }
+};
+
+// this is acceptted count of different number in l to r
+int szsg(int nn) {
+    --nn;
+    nn |= nn >> 1;
+    nn |= nn >> 2;
+    nn |= nn >> 4;
+    nn |= nn >> 8;
+    nn |= nn >> 16;
+    ++nn;
+    return nn << 1;
+}
+
+int n, sn;
+
+class Tree {
+    vector <bitset<5001>> Sg;
+
+public:
+    void init(vector<int> &arr) {
+        Sg.resize(sn);
+        buildsg(1, 1, n, arr);
+    }
+
+    void buildsg(int nd, int sl, int sr, vector<int> &arr) {
+        if (sl == sr) {
+            Sg[nd].set(arr[sl], 1);
+            return;
+        }
+        int m = (sl + sr) >> 1;
+        buildsg(nd << 1, sl, m, arr);
+        buildsg(nd << 1 | 1, m + 1, sr, arr);
+        Sg[nd] = Sg[nd << 1] | Sg[nd << 1 | 1];
+    }
+
+    bitset<5001> query(int nd, int sl, int sr, int ql, int qr) {
+        if (ql > qr || qr < sl || sr < ql)
+            return 0;
+        if (sl == ql && sr == qr)
+            return Sg[nd];
+        int m = (sl + sr) >> 1;
+        return (query(nd << 1, sl, m, ql, min(qr, m)) | query(nd << 1 | 1, m + 1, sr, max(ql, m + 1), qr));
+    }
+};
+
+// for sum
+class Segmenttree {
+    int n;
+    vector<int> sgmnt, arr;
+
+    int szsg(int nn) {
+        --nn;
+        nn |= nn >> 1;
+        nn |= nn >> 2;
+        nn |= nn >> 4;
+        nn |= nn >> 8;
+        nn |= nn >> 16;
+        ++nn;
+        return nn << 1;
+    }
+
+    void buildsg(int node, int sl, int sr) {
+        if (sl == sr) {
+            sgmnt[node] = arr[sl];
+            return;
+        }
+        int mid = sl + (sr - sl) / 2;
+        buildsg(node << 1 | 1, sl, mid);
+        buildsg((node + 1) << 1, mid + 1, sr);
+        sgmnt[node] = sgmnt[node << 1 | 1] + sgmnt[(node + 1) << 1];
+    }
+
+    void update(int node, int sl, int sr, int &idx, int val) {
+        if (sl == sr) {
+            sgmnt[node] = val;
+            return;
+        }
+        int mid = (sr + sl) >> 1;
+        if (idx > mid)
+            update((node + 1) << 1, mid + 1, sr, idx, val);
+        else
+            update(node << 1 | 1, sl, mid, idx, val);
+        sgmnt[node] = sgmnt[node << 1 | 1] + sgmnt[(node + 1) << 1];
+    }
+
+    int query(int node, int sl, int sr, int ql, int qr) {
+        if (qr < sl || sr < ql)
+            return 0;
+        if (ql <= sl && sr <= qr)
+            return sgmnt[node];
+        int mid = (sl + sr) >> 1;
+        return query(node << 1 | 1, sl, mid, ql, qr) + query((node + 1) << 1, mid + 1, sr, ql, qr);
+    }
+
+public:
+    Segmenttree() {
+        cin >> n;
+        arr.resize(n);
+        for (auto &it : arr)
+            cin >> it;
+        sgmnt.resize(sizeofsg(n) - 1);
+        buildsg(0, 0, n - 1);
+    }
+};
+
+class Segmenttree {
+    vector<int> sgmnt, arr;
+
+public:
+    Segmenttree(int n = 0) {
+        // int sn = (n & (n - 1)) ? (1 << ((int)log2(n) + 2)) - 1 : (n << 1) - 1; // 2* nextpowerof2lesorequal -1
+        arr.resize(n);
+        for (auto &it : arr)
+            cin >> it;
+        int sn = 4 * n - 1; //approx leke chalenge
+        sgmnt.resize(sn);
+    }
+
+    void buildsg(int node, int sl, int sr) {
+        if (sl == sr) {
+            sgmnt[node] = arr[sl];
+            return;
+        }
+        int mid = sl + (sr - sl) / 2;
+        buildsg(node << 1 | 1, sl, mid);
+        buildsg((node + 1) << 1, mid + 1, sr);
+        sgmnt[node] = min(sgmnt[node << 1 | 1], sgmnt[(node + 1) << 1]);
+    }
+
+    void update(int node, int sl, int sr, int &idx, int &val) {
+        if (sl == sr) {
+            sgmnt[node] = val;
+            return;
+        }
+        int mid = sl + (sr - sl) / 2;
+        if (idx > mid)
+            update((node + 1) << 1, mid + 1, sr, idx, val);
+        else
+            update(node << 1 | 1, sl, mid, idx, val);
+        sgmnt[node] = min(sgmnt[node << 1 | 1], sgmnt[(node + 1) << 1]);
+    }
+
+    int query(int node, int sl, int sr, int &ql, int &qr) {
+        if (qr < sl || sr < ql) {
+            return INT_MAX;
+        }
+        if (ql <= sl && sr <= qr) {
+            return sgmnt[node];
+        }
+        int mid = sl + (sr - sl) / 2;
+        int le = query(node << 1 | 1, sl, mid, ql, qr);
+        int re = query((node + 1) << 1, mid + 1, sr, ql, qr);
+        return min(le, re);
+    }
+};
+
+// max and distinct
+class Tree {
+    int n;
+    vector <bitset<1000001>> Sg;
+    vector<int> sgmnt, arr;
+    bitset<1000001> ans;
+    int mx;
+
+    int szsg(int nn) {
+        --nn;
+        nn |= nn >> 1;
+        nn |= nn >> 2;
+        nn |= nn >> 4;
+        nn |= nn >> 8;
+        nn |= nn >> 16;
+        ++nn;
+        return nn << 1;
+    }
+
+    void buildsg(int nd, int sl, int sr) {
+        if (sl == sr) {
+            sgmnt[nd] = arr[sl];
+            Sg[nd].set(arr[sl]);
+            return;
+        }
+        int m = (sl + sr) >> 1;
+        buildsg(nd << 1 | 1, sl, m);
+        buildsg((nd + 1) << 1, m + 1, sr);
+        sgmnt[nd] = max(sgmnt[nd << 1 | 1], sgmnt[(nd + 1) << 1]);
+        Sg[nd] = Sg[nd << 1 | 1] | Sg[(nd + 1) << 1];
+    }
+
+    void query(int nd, int sl, int sr, int ql, int qr) {
+        if (qr < sl || sr < ql)
+            return;
+        if (sl == ql && sr == qr) {
+            if (sgmnt[nd] > mx) mx = sgmnt[nd];
+            ans |= Sg[nd];
+            return;
+        }
+        int m = (sl + sr) >> 1;
+        query(nd << 1 | 1, sl, m, ql, min(qr, m));
+        query((nd + 1) << 1, m + 1, sr, max(ql, m + 1), qr);
+    }
+
+public:
+    Tree() {
+        cin >> n;
+        int sn = szsg(n) - 1;
+        arr.resize(n);
+        Sg.resize(sn);
+        sgmnt.resize(sn);
+        for (auto &it : arr)
+            cin >> it;
+        buildsg(0, 0, n - 1);
+    }
+};
+
+class BIT {
+    int n;
+    vector<int> Ft, arr;
+public:
+    BIT(int N = 0) {
+        n = N;
+        Ft.resize(n);
+        arr.resize(n);
+        // for(int i=1;i<n;++i) {
+        //     cin>>arr[i];
+        //     update(i,sbc(arr[i]));
+        // }
+    }
+
+    void update(int x, int val) {
+        while (x < n) {
+            Ft[x] += val;
+            x += x & -x;
+        }
+    }
+
+    int query(int x) {
+        int sum = 0;
+        while (x > 0) {
+            sum += Ft[x];
+            x -= x & -x;
+        }
+        return sum;
+    }
+};
+
+class TreeNode {
+public:
+    int val;
+    TreeNode *lchld, *rchld;
+
+    TreeNode(int val = 0) : val{val}, lchld{nullptr}, rchld{nullptr} {}
+
+    TreeNode(int val, TreeNode *lchld, TreeNode *rchld) : val{val}, lchld{lchld}, rchld{rchld} {}
+
+};
+
+class MergeSortTree {
+    int n, sn;
+    vector <vector<int>> sgmnt;
+
+public:
+    MergeSortTree() {
+
+    }
+
+    void init(vector<int> &d) {
+        sgmnt.resize(sn);
+        buildsg(0, 0, n - 1, d);
+    }
+    // void merge(int root, int left, int right)
+    // {
+    //     int i = 0, j = 0, nl = sgmnt[left].size(), nr = sgmnt[right].size();
+    //     while (i < nl && j < nr)
+    //     {
+    //         if (sgmnt[left][i] < sgmnt[right][j])
+    //             sgmnt[root].push_back(sgmnt[left][i]), ++i;
+    //         else
+    //             sgmnt[root].push_back(sgmnt[right][j]), ++j;
+    //     }
+    //     while (i < nl)
+    //         sgmnt[root].push_back(sgmnt[left][i]), ++i;
+    //     while (j < nr)
+    //         sgmnt[root].push_back(sgmnt[right][j]), ++j;
+    //     // if(i<nl)
+    //     //     sgmnt[root].insert(sgmnt[root].end(),sgmnt[left].begin()+i,sgmnt[left].end());
+    //     // if(j<nr)
+    //     //     sgmnt[root].insert(sgmnt[root].end(),sgmnt[right].begin()+j,sgmnt[right].end());
+    // }
+
+    void buildsg(int nd, int sl, int sr, vector<int> &d) {
+        if (sl == sr) {
+            sgmnt[nd].push_back(d[sl]);
+            return;
+        }
+
+        int mid = (sl + sr) >> 1;
+        buildsg(nd << 1 | 1, sl, mid, d);
+        buildsg((nd + 1) << 1, mid + 1, sr, d);
+        merge(sgmnt[nd << 1 | 1].begin(), sgmnt[nd << 1 | 1].end(), sgmnt[(nd + 1) << 1].begin(),
+              sgmnt[(nd + 1) << 1].end(), back_inserter(sgmnt[nd]));
+        // merge(nd, nd << 1 | 1, (nd + 1) << 1);
+    }
+
+    // this update will tle we have to use set
+    // void update(int nd, int sl, int sr, int &idx, int &val)
+    // {
+    //     if(sl==sr) {
+    //         sgmnt[nd].back()=val;
+    //         return;
+    //     }
+    //     int mid=(sl+sr)>>1;
+    //     if(idx>mid)
+    //         update((nd+1)<<1,mid+1,sr,idx,val);
+    //     else
+    //         update(nd<<1|1,sl,mid,idx,val);
+    //     sgmnt[nd].clear();
+    //     merge(sgmnt[nd << 1 | 1].begin(), sgmnt[nd << 1 | 1].end(), sgmnt[(nd + 1) << 1].begin(), sgmnt[(nd + 1) << 1].end(), back_inserter(sgmnt[nd]),greater<int>());
+    //     // merge(nd, nd << 1 | 1, (nd + 1) << 1);
+    // }
+    int query(int nd, int sl, int sr, int ql, int qr, int &m) {
+        if (qr < sl || sr < ql)
+            return 0;
+        if (ql <= sl && sr <= qr)
+            return upper_bound(sgmnt[nd].begin(), sgmnt[nd].end(), m) - sgmnt[nd].begin();
+        int mid = (sl + sr) >> 1;
+        return query(nd << 1 | 1, sl, mid, ql, qr, m) + query((nd + 1) << 1, mid + 1, sr, ql, qr, m);
+    }
+};
+
+class Sgit {
+    vector<int> tree, ar;
+    int n;
+public:
+    Sgit(int nn = 0) {
+        n = nn;
+        ar.resize(n);
+        for (auto &it:ar) cin >> it;
+        tree.resize(2 * n);
+    }
+
+    void build() {
+        for (int i = n, j = 0; j < n; ++j, ++i)
+            tree[i] = ar[j];
+        for (int i = n - 1; i > 0; --i)
+            tree[i] = tree[i << 1] + tree[i << 1 | 1];
+    }
+
+    void update(int i, int val) {
+        i += n;
+        tree[i] = val;
+        int lc, rc;
+        while (i > 0) {
+            if (i & 1)
+                lc = i - 1, rc = i;
+            else
+                lc = i, rc = i + 1;
+            i /= 2;
+            tree[i] = tree[lc] + tree[rc];
+        }
+    }
+
+    int query(int l, int r) {
+        l += n;
+        r += n;
+        int ans = 0;
+        while (l <= r) {
+            if (l & 1)
+                ans += tree[l++];
+            if (!(r & 1))
+                ans += tree[r--];
+            l >>= 1;
+            r >>= 1;
+        }
+        return ans;
+    }
+};
+
+class Tree {
+    vector <unordered_set<int>> Sg;
+
+public:
+
+    int szsg(int nn) {
+        --nn;
+        nn |= nn >> 1;
+        nn |= nn >> 2;
+        nn |= nn >> 4;
+        nn |= nn >> 8;
+        nn |= nn >> 16;
+        ++nn;
+        return nn << 1;
+    }
+
+    int n, sn;
+    unordered_set<int> ans;
+
+    void init(vector<int> &arr) {
+        Sg.resize(sn);
+        buildsg(1, 1, n, arr);
+    }
+
+    void buildsg(int nd, int sl, int sr, vector<int> &arr) {
+        if (sl == sr) {
+            Sg[nd].insert(arr[sl]);
+            return;
+        }
+        int m = (sl + sr) >> 1;
+        buildsg(nd << 1, sl, m, arr);
+        buildsg(nd << 1 | 1, m + 1, sr, arr);
+        for (int i = sl; i <= sr; ++i)
+            Sg[nd].insert(arr[i]);
+    }
+
+    void query(int nd, int sl, int sr, int ql, int qr) {
+        if (qr < sl || sr < ql)
+            return;
+        if (sl == ql && sr == qr) {
+            for (auto &it : Sg[nd])
+                ans.insert(it);
+            return;
+        }
+        int m = (sl + sr) >> 1;
+        query(nd << 1, sl, m, ql, min(qr, m));
+        query(nd << 1 | 1, m + 1, sr, max(ql, m + 1), qr);
+    }
+};
+
+ll minf = 1e6;
+
+class Segmenttree {
+    int n;
+    vector<int> arr, sgmnt;
+
+    int szsg(int nn) {
+        --nn;
+        nn |= nn >> 1;
+        nn |= nn >> 2;
+        nn |= nn >> 4;
+        nn |= nn >> 8;
+        nn |= nn >> 16;
+        ++nn;
+        return nn << 1;
+    }
+
+    void buildsg(int nd, int sl, int sr) {
+        if (sl == sr) {
+            cin >> arr[sl];
+            sgmnt[nd] = arr[sl];
+            return;
+        }
+        int mid = sl + (sr - sl) / 2, chl = nd << 1 | 1, chr = (nd + 1) << 1;
+        buildsg(chl, sl, mid);
+        buildsg(chr, mid + 1, sr);
+        sgmnt[nd] = max(sgmnt[chl], sgmnt[chr]);
+    }
+
+    void update(int nd, int sl, int sr, int &idx, ll &val) {
+        if (sl == sr) {
+            sgmnt[nd] = val;
+            return;
+        }
+        int mid = sl + (sr - sl) / 2, chl = nd << 1 | 1, chr = (nd + 1) << 1;
+        if (idx > mid)
+            update(chr, mid + 1, sr, idx, val);
+        else
+            update(chl, sl, mid, idx, val);
+        sgmnt[nd] = max(sgmnt[chl], sgmnt[chr]);
+    }
+
+    ll query(int nd, int sl, int sr, int ql, int qr) {
+        if (qr < sl || sr < ql)
+            return minf;
+        if (ql <= sl && sr <= qr)
+            return sgmnt[nd];
+        int mid = (sl + sr) >> 1;
+        return max(query(nd << 1 | 1, sl, mid, ql, qr), query((nd + 1) << 1, mid + 1, sr, ql, qr));
+    }
+
+public:
+    int q;
+
+    Segmenttree() {
+        cin >> n >> q;
+        sgmnt.resize(szsg(n) - 1);
+        buildsg(0, 0, n - 1);
+    }
+};
+
+class Segmenttree {
+    int n;
+    vector<int> arr;
+    vector <vector<int>> Sg;
+
+    int szsg(int nn) {
+        --nn;
+        nn |= nn >> 1;
+        nn |= nn >> 2;
+        nn |= nn >> 4;
+        nn |= nn >> 8;
+        nn |= nn >> 16;
+        ++nn;
+        return nn << 1;
+    }
+
+    void buildsg(int nd, int sl, int sr) {
+        if (sl == sr) {
+            cin >> arr[sl];
+            Sg[nd].push_back(arr[sl]);
+            return;
+        }
+        int mid = sl + (sr - sl) / 2, chl = nd << 1 | 1, chr = (nd + 1) << 1;
+        buildsg(chl, sl, mid);
+        buildsg(chr, mid + 1, sr);
+        merge(Sg[chl].begin(), Sg[chl].end(), Sg[chr].begin(), Sg[chr].end(), back_inserter(Sg[nd]));
+    }
+
+    int query(int nd, int sl, int sr, int ql, int qr, int &val) {
+        if (qr < sl || sr < ql)
+            return 0;
+        if (ql == sl && sr == qr)
+            return *(upper_bound(Sg[nd].begin(), Sg[nd].end(), val) - 1);
+        int mid = (sl + sr) >> 1;
+        return max(query(nd << 1 | 1, sl, mid, ql, min(mid, qr), val),
+                   query((nd + 1) << 1, mid + 1, sr, max(mid + 1, ql), qr, val));
+    }
+
+public:
+    Segmenttree() {
+        cin >> n;
+        arr.resize(n);
+        Sg.resize(szsg(n) - 1);
+        buildsg(0, 0, n - 1);
+    }
+};
+
+class Segmenttree {
+    vector <pair<ll, int>> Sg;
+    vector <ll> ar;
+    int n;
+    pair<ll, int> Neutral_Element = {1e18, 0};
+
+    pair<ll, int> single(const ll &val) {
+        return {val, 1};
+    }
+
+    void combine(pair<ll, int> &ans, const pair<ll, int> &val) {
+        if (ans.first == val.first)
+            ans.second += val.second;
+        else if (ans.first > val.first)
+            ans = val;
+    }
+
+    void combine(pair<ll, int> &ans, const pair<ll, int> &lv, const pair<ll, int> &rv) {
+        if (lv.first > rv.first)
+            ans = rv;
+        else if (lv.first < rv.first)
+            ans = lv;
+        else ans = {lv.first, lv.second + rv.second};
+    }
+
+    void buildsg() {
+        for (int ind = n, j = 0; j < n; ++ind, ++j)
+            Sg[ind] = single(ar[j]);
+        for (int ind = n - 1; ind > 0; --ind)
+            combine(Sg[ind], Sg[ind << 1], Sg[ind << 1 | 1]);
+    }
+
+    void update(int ind, ll &val) {
+        ind += n;
+        Sg[ind] = single(val);
+        ind >>= 1;
+        while (ind > 0) {
+            combine(Sg[ind], Sg[ind << 1], Sg[ind << 1 | 1]);
+            ind >>= 1;
+        }
+    }
+
+    // void update(int ind, ll &val)
+    // {
+    //     ind += n;
+    //     Sg[ind] = single(val);
+    //     int lc,rc;
+    //     while (ind > 0)
+    //     {
+    //         if(ind&1)
+    //             lc=ind-1,rc=ind;
+    //         else
+    //             lc=ind,rc=ind+1;
+    //         ind >>= 1;
+    //         combine(Sg[ind], Sg[lc], Sg[rc]);
+    //     }
+    // }
+    pair<ll, int> query(int l, int r) {
+        l += n;
+        r += n;
+        pair<ll, int> ans = {1e18, 0};
+        while (l <= r) {
+            if (l & 1)
+                combine(ans, Sg[l++]);
+            if (!(r & 1))
+                combine(ans, Sg[r--]);
+            l >>= 1;
+            r >>= 1;
+        }
+        return ans;
+    }
+
+public:
+    Segmenttree() {
+        cin >> n >> m;
+        ar.resize(n);
+        for (auto &it:ar)
+            cin >> it;
+        Sg.resize(n << 1);
+        buildsg();
+    }
+};
+
+class Segmenttree {
+    vector <pair<ll, int>> Sg;
+    vector <ll> ar;
+    int n;
+
+    int szsg(int nn) {
+        --nn;
+        nn |= nn >> 1;
+        nn |= nn >> 2;
+        nn |= nn >> 4;
+        nn |= nn >> 8;
+        nn |= nn >> 16;
+        ++nn;
+        return nn << 1;
+    }
+
+    pair<ll, int> Neutral_Element = {1e18, 0};
+
+    pair<ll, int> single(const ll &val) {
+        return {val, 1};
+    }
+
+    pair<ll, int> combine(const pair<ll, int> &lv, const pair<ll, int> &rv) {
+        if (lv.first > rv.first)
+            return rv;
+        if (lv.first < rv.first)
+            return lv;
+        return {lv.first, lv.second + rv.second};
+    }
+
+    void buildsg(int nd, int sl, int sr) {
+        if (sl == sr) {
+            Sg[nd] = single(ar[sl]);
+            return;
+        }
+        int md = (sl + sr) >> 1;
+        buildsg(nd << 1 | 1, sl, md);
+        buildsg((nd + 1) << 1, md + 1, sr);
+        Sg[nd] = combine(Sg[nd << 1 | 1], Sg[(nd + 1) << 1]);
+    }
+
+    void update(int nd, int sl, int sr, int &idx, ll &val) {
+        if (sl == sr) {
+            Sg[nd] = single(val);
+            return;
+        }
+        int md = sl + (sr - sl) / 2;
+        if (idx > md)
+            update((nd + 1) << 1, md + 1, sr, idx, val);
+        else
+            update(nd << 1 | 1, sl, md, idx, val);
+        Sg[nd] = combine(Sg[nd << 1 | 1], Sg[(nd + 1) << 1]);
+    }
+
+    pair<ll, int> query(int nd, int sl, int sr, int &ql, int &qr) {
+        if (qr < sl || sr < ql) {
+            return Neutral_Element;
+        }
+        if (ql <= sl && sr <= qr) {
+            return Sg[nd];
+        }
+        int md = sl + (sr - sl) / 2;
+        auto le = query(nd << 1 | 1, sl, md, ql, qr);
+        auto re = query((nd + 1) << 1, md + 1, sr, ql, qr);
+        return combine(le, re);
+    }
+
+public:
+    Segmenttree() {
+        cin >> n >> m;
+        ar.resize(n);
+        for (auto &it : ar)
+            cin >> it;
+        Sg.resize(szsg(n) - 1);
+        buildsg(0, 0, n - 1);
+    }
+};
+
+class Segmenttree {
+    vector <pair<ll, int>> Sg;
+    vector <ll> ar;
+    int n;
+
+    int szsg(int nn) {
+        --nn;
+        nn |= nn >> 1;
+        nn |= nn >> 2;
+        nn |= nn >> 4;
+        nn |= nn >> 8;
+        nn |= nn >> 16;
+        ++nn;
+        return nn << 1;
+    }
+
+    pair<ll, int> Neutral_Element = {1e18, 0};
+
+    pair<ll, int> single(const ll &val) {
+        return {val, 1};
+    }
+
+    pair<ll, int> combine(const pair<ll, int> &lv, const pair<ll, int> &rv) {
+        if (lv.first > rv.first)
+            return rv;
+        if (lv.first < rv.first)
+            return lv;
+        return {lv.first, lv.second + rv.second};
+    }
+
+    void buildsg(int nd, int sl, int sr) {
+        if (sl == sr) {
+            Sg[nd] = single(ar[sl]);
+            return;
+        }
+        int md = (sl + sr) >> 1;
+        buildsg(nd << 1 | 1, sl, md);
+        buildsg((nd + 1) << 1, md + 1, sr);
+        Sg[nd] = combine(Sg[nd << 1 | 1], Sg[(nd + 1) << 1]);
+    }
+
+    void update(int nd, int sl, int sr, int &idx, ll &val) {
+        if (sl == sr) {
+            Sg[nd] = single(val);
+            return;
+        }
+        int md = sl + (sr - sl) / 2;
+        if (idx > md)
+            update((nd + 1) << 1, md + 1, sr, idx, val);
+        else
+            update(nd << 1 | 1, sl, md, idx, val);
+        Sg[nd] = combine(Sg[nd << 1 | 1], Sg[(nd + 1) << 1]);
+    }
+
+    pair<ll, int> query(int nd, int sl, int sr, int &ql, int &qr) {
+        if (qr < sl || sr < ql) {
+            return Neutral_Element;
+        }
+        if (ql <= sl && sr <= qr) {
+            return Sg[nd];
+        }
+        int md = sl + (sr - sl) / 2;
+        auto le = query(nd << 1 | 1, sl, md, ql, qr);
+        auto re = query((nd + 1) << 1, md + 1, sr, ql, qr);
+        return combine(le, re);
+    }
+
+public:
+    Segmenttree() {
+        cin >> n;
+        ar.resize(n);
+        for (auto &it : ar)
+            cin >> it;
+        Sg.resize(szsg(n) - 1);
+        buildsg(0, 0, n - 1);
+    }
+};
+// #define ll long long
+#define ll int
+typedef ll item;
+
+class Segtree {
+    // vector<item> Sg;
+    // vector<ll> ar;
+    // int n;
+
+    // item Neutral_Element = 0;
+
+    // item single(const item &val) {
+    // return val;
+    // }
+
+    // item combine(const item &lv, const item &rv) {
+    // return lv+rv;
+    // }
+
+    // void buildsg(int nd, int sl, int sr, vector<item> &ar) {
+    // if (sl == sr) {
+    // Sg[nd] = single(ar[sl]);
+    // return;
+    // }
+    // int md = (sl + sr) >> 1;
+    // buildsg(nd << 1 | 1, sl, md, ar);
+    // buildsg((nd + 1) << 1, md + 1, sr, ar);
+    // Sg[nd] = combine(Sg[nd << 1 | 1], Sg[(nd + 1) << 1]);
+    // }
+
+    //  void update(int nd, int sl, int sr, int idx, item val)
+    //  {
+    //  if (sl == sr)
+    //  {
+    //  Sg[nd] = single(val);
+    //  return;
+    //  }
+    //  int md = sl + (sr - sl) / 2;
+    //  if (idx > md)
+    //  update((nd + 1) << 1, md + 1, sr, idx, val);
+    //  else
+    //  update(nd << 1 | 1, sl, md, idx, val);
+    //  Sg[nd] = combine(Sg[nd << 1 | 1], Sg[(nd + 1) << 1]);
+    //  }
+    // item query(int nd, int sl, int sr, int ql, int qr) {
+    // if (qr < sl || sr < ql) {
+    // return Neutral_Element;
+    // }
+    // if (ql <= sl && sr <= qr) {
+    // return Sg[nd];
+    // }
+    // int md = (sl + sr) >> 1;
+    // auto le = query(nd << 1 | 1, sl, md, ql, qr);
+    // auto re = query((nd + 1) << 1, md + 1, sr, ql, qr);
+    // return combine(le, re);
+    // }
+    int szsg(int nn) {
+        --nn;
+        nn |= nn >> 1;
+        nn |= nn >> 2;
+        nn |= nn >> 4;
+        nn |= nn >> 8;
+        nn |= nn >> 16;
+        ++nn;
+        return nn << 1;
+    }
+
+public:
+    Segtree() {
+        // cin >> n;
+        // ar.resize(n);
+        // for (auto &it : ar)
+        // cin >> it;
+        // Sg.resize(szsg(n) - 1);
+        // buildsg(0, 0, n - 1);
+    }
+
+    vector<ll> operations;
+    ll No_Operation = INT_MIN;
+
+    ll operation(ll a, ll b) {
+        if (b == No_Operation)
+            return a;
+        return b;
+    }
+
+    void apply_operation(ll &a, ll b) {
+        a = operation(a, b);
+    }
+
+    void propogate(int nd, int sl, int sr) {
+        if (sl == sr) return;
+        apply_operation(operations[nd << 1 | 1], operations[nd]);
+        apply_operation(operations[(nd + 1) << 1], operations[nd]);
+        operations[nd] = No_Operation;
+    }
+
+    void init(int N) {
+        operations.resize(szsg(N) - 1, No_Operation);
+    }
+
+    void modify(int nd, int sl, int sr, int ql, int qr, ll val) {
+        propogate(nd, sl, sr);
+        if (qr < sl || sr < ql)
+            return;
+        if (ql <= sl && sr <= qr) {
+            apply_operation(operations[nd], val);
+            return;
+        }
+        int md = (sl + sr) >> 1;
+        modify(nd << 1 | 1, sl, md, ql, qr, val);
+        modify((nd + 1) << 1, md + 1, sr, ql, qr, val);
+    }
+
+    item get(int nd, int sl, int sr, int idx) {
+        propogate(nd, sl, sr);
+        if (sl == sr)
+            return operations[nd];
+        int md = (sl + sr) >> 1;
+        if (idx > md)
+            return get((nd + 1) << 1, md + 1, sr, idx);
+        else
+            return get(nd << 1 | 1, sl, md, idx);
+    }
+};
+
+//
+//
+#define ll long long
+// #define ll int
+typedef ll item;
+
+class Segtree {
+    // void buildsg(int nd, int sl, int sr, vector<item> &ar)
+    // {
+    //     if (sl == sr)
+    //     {
+    //         Sg[nd] = single(ar[sl]);
+    //         return;
+    //     }
+    //     int md = (sl + sr) >> 1;
+    //     buildsg(nd << 1 | 1, sl, md, ar);
+    //     buildsg((nd + 1) << 1, md + 1, sr, ar);
+    //     Sg[nd] = combine(Sg[nd << 1 | 1], Sg[(nd + 1) << 1]);
+    // }
+
+    // void update(int nd, int sl, int sr, int idx, item val)
+    // {
+    //     if (sl == sr)
+    //     {
+    //         Sg[nd] = single(val);
+    //         return;
+    //     }
+    //     int md = sl + (sr - sl) / 2;
+    //     if (idx > md)
+    //         update((nd + 1) << 1, md + 1, sr, idx, val);
+    //     else
+    //         update(nd << 1 | 1, sl, md, idx, val);
+    //     Sg[nd] = combine(Sg[nd << 1 | 1], Sg[(nd + 1) << 1]);
+    // }
+    // item query(int nd, int sl, int sr, int ql, int qr)
+    // {
+    //     if (qr < sl || sr < ql)
+    //     {
+    //         return Neutral_Element;
+    //     }
+    //     if (ql <= sl && sr <= qr)
+    //     {
+    //         return Sg[nd];
+    //     }
+    //     int md = (sl + sr) >> 1;
+    //     auto le = query(nd << 1 | 1, sl, md, ql, qr);
+    //     auto re = query((nd + 1) << 1, md + 1, sr, ql, qr);
+    //     return combine(le, re);
+    // }
+public:
+    int szsg(int nn) {
+        --nn;
+        nn |= nn >> 1;
+        nn |= nn >> 2;
+        nn |= nn >> 4;
+        nn |= nn >> 8;
+        nn |= nn >> 16;
+        ++nn;
+        return nn << 1;
+    }
+
+    vector<ll> operations;
+    vector <item> Sg;
+    vector <item> ar;
+    int n;
+
+    Segtree() {
+        // cin >> n;
+        // ar.resize(n);
+        // for (auto &it : ar)
+        // cin >> it;
+        // Sg.resize(szsg(n) - 1);
+        // buildsg(0, 0, n - 1);
+    }
+
+    void init(int N) {
+        N = szsg(N);
+        operations.resize(N - 1, No_Operation);
+        Sg.resize(N - 1, 0);
+    }
+
+    item Neutral_Element = 0;
+
+    item single(const item &val) {
+        return val;
+    }
+
+    item combine(const item &lv, const item &rv) {
+        return lv + rv;
+    }
+
+    ll No_Operation = INT_MIN;
+
+    ll operation(ll a, ll b) {
+        if (b == No_Operation) return a;
+        return b;
+    }
+
+    void apply_operation(ll &a, ll b) {
+        a = operation(a, b);
+    }
+
+    void propogate(int nd, int sl, int sr) {
+        if (operations[nd] == No_Operation) return;
+        Sg[nd] = (sr - sl + 1) * operations[nd];
+        if (sl != sr) {
+            apply_operation(operations[nd << 1 | 1], operations[nd]);
+            apply_operation(operations[(nd + 1) << 1], operations[nd]);
+        }
+        operations[nd] = No_Operation;
+    }
+
+    void modify(int nd, int sl, int sr, int ql, int qr, ll val) {
+        propogate(nd, sl, sr);
+        if (qr < sl || sr < ql)
+            return;
+        if (ql <= sl && sr <= qr) {
+            Sg[nd] = (sr - sl + 1) * val;
+            if (sl != sr) {
+                apply_operation(operations[nd << 1 | 1], val);
+                apply_operation(operations[(nd + 1) << 1], val);
+            }
+            return;
+        }
+        int md = (sl + sr) >> 1;
+        modify(nd << 1 | 1, sl, md, ql, qr, val);
+        modify((nd + 1) << 1, md + 1, sr, ql, qr, val);
+        Sg[nd] = combine(Sg[nd << 1 | 1], Sg[(nd + 1) << 1]);
+    }
+
+    item get(int nd, int sl, int sr, int ql, int qr) {
+        propogate(nd, sl, sr);
+        if (qr < sl || sr < ql) return Neutral_Element;
+        if (ql <= sl && sr <= qr)
+            return Sg[nd];
+        int md = (sl + sr) >> 1;
+        auto le = get(nd << 1 | 1, sl, md, ql, qr);
+        auto re = get((nd + 1) << 1, md + 1, sr, ql, qr);
+        return combine(le, re);
+    }
+};
+
+//node version
+class Vertex { // [lower,upper)
+public:
+    int sl, sr;
+    int Sg = 0;
+    Vertex *lch = nullptr, *rch = nullptr;
+
+    Vertex(int lb, int rb) {
+        sl = lb;
+        sr = rb;
+    }
+
+    void build(vector<int> &ar) {
+        if (sl + 1 == sr) {
+            Sg = ar[sl];
+            return;
+        }
+        int md = (sl + sr) >> 1;
+        lch = new Vertex(sl, md);
+        rch = new Vertex(md, sr);
+        lch->build(ar);
+        rch->build(ar);
+        Sg = min(lch->Sg, rch->Sg);
+    }
+
+    void update(int idx, int vl) {
+        if (sl + 1 == sr) {
+            Sg = vl;
+            return;
+        }
+        if (idx < lch->sr)
+            lch->update(idx, vl);
+        else
+            rch->update(idx, vl);
+        Sg = min(lch->Sg, rch->Sg);
+    }
+
+    int query(int ql, int qr) {
+        if (qr <= sl || sr <= ql) {
+            return INT_MAX;
+        }
+        if (ql == sl && sr == qr) {
+            return Sg;
+        }
+        return min(lch->query(ql, min(qr, lch->sr)),
+                   rch->query(max(ql, rch->sl), qr));
+    }
+
+    void fi() {
+        if (sl + 1 == sr)
+            return;
+        int md = (sl + sr) >> 1;
+        lch->fi();
+        rch->fi();
+        delete lch;
+        delete rch;
+    }
+};
+
+void solve() {
+    int n, q;
+    cin >> n >> q;
+    vector<int> ar(n);
+    cin >> ar;
+    Vertex *Seg = new Vertex(0, n);
+    Seg->build(ar);
+    while (q--) {
+        char op;
+        cin >> op;
+        if (op == 'q') {
+            int l, r;
+            cin >> l >> r;
+            --l;
+            cout << Seg->query(l, r) << '\n';
+        } else {
+            int x, y;
+            cin >> x >> y;
+            --x;
+            Seg->update(x, y);
+        }
+    }
+//   Seg->fi();
+//   delete Seg;
+}
+//

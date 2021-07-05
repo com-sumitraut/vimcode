@@ -1,0 +1,57 @@
+class Vertex { // [lower,upper)
+public:
+    int sl, sr;
+    int Sg = 0;
+    Vertex *lch = nullptr, *rch = nullptr;
+
+    Vertex(int lb, int rb) {
+        sl = lb;
+        sr = rb;
+    }
+
+    void build(vector<int> &ar) {
+        if (sl + 1 == sr) {
+            Sg = ar[sl];
+            return;
+        }
+        int md = (sl + sr) >> 1;
+        lch = new Vertex(sl, md);
+        rch = new Vertex(md, sr);
+        lch->build(ar);
+        rch->build(ar);
+        Sg = min(lch->Sg, rch->Sg);
+    }
+
+    void update(int idx, int vl) {
+        if (sl + 1 == sr) {
+            Sg = vl;
+            return;
+        }
+        if (idx < lch->sr)
+            lch->update(idx, vl);
+        else
+            rch->update(idx, vl);
+        Sg = min(lch->Sg, rch->Sg);
+    }
+
+    int query(int ql, int qr) {
+        if (qr <= sl || sr <= ql) {
+            return INT_MAX;
+        }
+        if (ql == sl && sr == qr) {
+            return Sg;
+        }
+        return min(lch->query(ql, min(qr, lch->sr)),
+                   rch->query(max(ql, rch->sl), qr));
+    }
+
+    void fi() {
+        if (sl + 1 == sr)
+            return;
+        int md = (sl + sr) >> 1;
+        lch->fi();
+        rch->fi();
+        delete lch;
+        delete rch;
+    }
+};

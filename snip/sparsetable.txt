@@ -1,0 +1,28 @@
+int max(int a, int b) {
+    if (a > b) return a;
+    return b;
+}
+
+const int N = 1e6 + 1;
+const int K = 21; // K=floor(log2(n)+1);
+int table[N][K], numlog[N];
+int arr[N];
+
+void build() {
+    numlog[1] = 0;
+    for (int i = 2; i < N; ++i)
+        numlog[i] = numlog[i >> 1] + 1;
+    for (int i = 0; i < n; ++i) {
+        table[i][0] = arr[i];
+    }
+    for (int j = 1; j < K; ++j) {
+        for (int i = 0; i + (1 << j) <= n; ++i) {
+            table[i][j] = max(table[i][j - 1], table[i + (1 << (j - 1))][j - 1]);
+        }
+    }
+}
+
+int query(int l, int r) {
+    int curlog = numlog[r - l + 1];
+    return max(table[l][curlog], table[r - (1 << curlog) + 1][curlog]);
+}

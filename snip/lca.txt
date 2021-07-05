@@ -1,0 +1,49 @@
+int logn;
+vector<int> level;
+vector <vector<int>> adj, parent;
+
+void dfs(int cur, int par) {
+    level[cur] = level[par] + 1;
+    parent[cur][0] = par;
+    for (int i = 1; i < logn; ++i) {
+        parent[cur][i] = parent[parent[cur][i - 1]][i - 1];
+    }
+    for (auto it : adj[cur]) {
+        if (it != par) {
+            dfs(it, cur);
+        }
+    }
+}
+
+int lca(int a, int b) {
+    if (level[a] > level[b])
+        swap(a, b);
+    int d = level[b] - level[a];
+    for (int i = logn - 1; ~i; --i) {
+
+        if (d & (1 << i)) {
+            b = parent[b][i];
+        }
+    }
+    /*
+    for(int i=logn-1;~i;--i) {
+        if (level[a] <= level[parent[b][i]]) {
+            b=parent[b][i];
+        }
+    }
+    */
+    if (a == b)
+        return a;
+    for (int i = logn - 1; ~i; --i) {
+        if (parent[a][i] != parent[b][i]) {
+            a = parent[a][i];
+            b = parent[b][i];
+        }
+    }
+    return parent[a][0];
+}
+
+int dist(int a, int b) {
+    int par = lca(a, b);
+    return level[a] + level[b] - 2 * level[par];
+}

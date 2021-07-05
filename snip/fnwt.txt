@@ -1,0 +1,58 @@
+class BIT {
+    int n;
+    vector<int> Ft;
+public:
+    BIT(int N = 0) {
+        n = N;
+        Ft.resize(n);
+    }
+
+    void update(int x, int val) {
+        while (x < n) {
+            Ft[x] += val;
+            x += x & -x;
+        }
+    }
+
+    int query(int x) {
+        int sum = 0;
+        while (x > 0) {
+            sum += Ft[x];
+            x -= x & -x;
+        }
+        return sum;
+    }
+};
+
+//zero indexed
+
+struct Ft {
+    vector<int> bit;  // binary indexed tree
+    int n;
+
+    Ft(int n) {
+        this->n = n;
+        bit.assign(n, 0);
+    }
+
+    Ft(vector<int> a) : Ft(a.size()) {
+        for (size_t i = 0; i < a.size(); i++)
+            add(i, a[i]);
+    }
+
+    int sum(int r) {
+        int ret = 0;
+        for (; r >= 0; r = (r & (r + 1)) - 1)
+            ret += bit[r];
+        return ret;
+    }
+
+    int sum(int l, int r) {
+        return sum(r) - sum(l - 1);
+    }
+
+    void add(int idx, int delta) {
+        for (; idx < n; idx = idx | (idx + 1))
+            bit[idx] += delta;
+    }
+};

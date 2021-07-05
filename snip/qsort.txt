@@ -1,0 +1,11 @@
+int cmp(const void *a, const void *b) {
+    return *(int *) a > *(int *) b;
+}
+
+qsort(arr, n, sizeof(arr[0]),cmp);
+auto k = (int *) bsearch(&x, arr, n, sizeof(arr[0]), cmp);
+if(k==NULL) {
+    printf("-1\n");
+} else {
+    printf("%d\n",k-arr);
+}

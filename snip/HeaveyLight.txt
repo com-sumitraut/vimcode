@@ -1,0 +1,191 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+vector<int> Sg;
+int N, logN;
+vector<vector<pair<int, int>>> adj;
+vector<vector<int>> Parent;
+vector<int> Depth, SubSize;
+vector<int> arr, chain, position, chainHead;
+int chainId, pos;
+vector<pair<int, int>> ind;
+
+
+int szsg(int nn) {
+    --nn;
+    nn |= nn >> 1;
+    nn |= nn >> 2;
+    nn |= nn >> 4;
+    nn |= nn >> 8;
+    nn |= nn >> 16;
+    ++nn;
+    return nn << 1;
+}
+
+void buildsg(int nd, int sl, int sr) {
+    if (sl == sr) {
+        Sg[nd] = arr[sl];
+        return;
+    }
+    int md = (sl + sr) >> 1, chl = nd << 1 | 1, chr = chl + 1;
+    buildsg(chl, sl, md);
+    buildsg(chr, md + 1, sr);
+    Sg[nd] = max(Sg[chl], Sg[chr]);
+}
+
+void init() {
+    Sg.clear();
+    Sg.resize(szsg(N) - 1);
+    buildsg(0, 0, N - 1);
+}
+
+void update_tree(int nd, int sl, int sr, int idx, int val) {
+    if (sl == sr) {
+        Sg[nd] = val;
+        return;
+    }
+    int md = (sl + sr) >> 1, chl = nd << 1 | 1, chr = chl + 1;
+    if (idx > md)
+        update_tree(chr, md + 1, sr, idx, val);
+    else
+        update_tree(chl, sl, md, idx, val);
+    Sg[nd] = max(Sg[chl], Sg[chr]);
+}
+
+int query_tree(int nd, int sl, int sr, int ql, int qr) {
+    if (qr < sl || sr < ql)
+        return INT_MIN;
+    if (ql == sl && sr == qr)
+        return Sg[nd];
+    int md = (sl + sr) >> 1, chl = nd << 1 | 1, chr = chl + 1;
+    return max(query_tree(chl, sl, md, ql, min(md, qr)), query_tree(chr, md + 1, sr, max(md + 1, ql), qr));
+}
+
+void dfs(int cur, int par = 0) {
+    Depth[cur] = Depth[par] + 1;
+    Parent[cur][0] = par;
+    for (int i = 1; i <= logN; ++i) {
+        Parent[cur][i] = Parent[Parent[cur][i - 1]][i - 1];
+    }
+    SubSize[cur] = 1;
+    for (auto Child:adj[cur]) {
+        if (Child.first != par) {
+            dfs(Child.first, cur);
+            SubSize[cur] += SubSize[Child.first];
+        }
+    }
+}
+
+int lca(int u, int v) {
+    if (Depth[u] < Depth[v]) swap(u, v);
+    int Ddiff = Depth[u] - Depth[v];
+    for (int bit = logN; ~bit; --bit) {
+        if (Ddiff >> bit & 1) {
+            u = Parent[u][bit];
+        }
+    }
+    if (u == v) return u;
+    for (int bit = logN; ~bit; --bit) {
+        if (Parent[u][bit] != Parent[v][bit]) {
+            u = Parent[u][bit];
+            v = Parent[v][bit];
+        }
+    }
+    return Parent[u][0];
+}
+
+void Hld(int cur, int par = 0) {
+    int heaveyChild = -1, heaveySize = 0, heaveyWeight = -1;
+    chain[cur] = chainId;
+    position[cur] = pos++;
+    for (auto &child:adj[cur]) {
+        if (child.first == par) continue;
+        if (SubSize[child.first] > heaveySize) {
+            heaveySize = SubSize[child.first];
+            heaveyChild = child.first;
+            heaveyWeight = child.second;
+        }
+    }
+    if (~heaveyChild) {
+        arr[pos] = heaveyWeight;
+        Hld(heaveyChild, cur);
+    }
+    for (auto &child:adj[cur]) {
+        if (child.first != par && child.first != heaveyChild) {
+            ++chainId;
+            chainHead[chainId] = child.first;
+            arr[pos] = child.second;
+            Hld(child.first, cur);
+        }
+    }
+}
+
+int query_up(int u, int v) {
+    if (u == v) return 0;
+    int ans = INT_MIN;
+    while (chain[u] != chain[v]) {
+        ans = max(ans, query_tree(0, 0, N - 1, position[chainHead[chain[u]]], position[u]));
+        u = Parent[chainHead[chain[u]]][0];
+    }
+    ans = max(ans, query_tree(0, 0, N - 1, position[v] + 1, position[u]));
+    return ans;
+}
+
+void Change(int idx, int val) {
+    int lw;
+    if (Depth[ind[idx].first] > Depth[ind[idx].second]) {
+        lw = ind[idx].first;
+    } else {
+        lw = ind[idx].second;
+    }
+    update_tree(0, 0, N - 1, position[lw], val);
+}
+
+int Query(int &u, int &v) {
+    int lc = lca(u, v);
+    return max(query_up(u, lc), query_up(v, lc));
+}
+
+int main() {
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+    int t;
+    cin >> t;
+    while (t--) {
+        cin >> N;
+        int e = N++, u, v, w;
+        logN = ceil(log2(N));
+        adj.clear(), adj.resize(N);
+        Depth.clear(), Depth.resize(N);
+        SubSize.clear(), SubSize.resize(N);
+        Parent.clear(), Parent.resize(N, vector<int>(logN + 1));
+        arr.clear(), arr.resize(N);
+        chain.clear(), chain.resize(N);
+        position.clear(), position.resize(N);
+        chainHead.clear(), chainHead.resize(N);
+        ind.resize(N);
+        for (int i = 1; i < e; ++i) {
+            cin >> u >> v >> w;
+            adj[u].emplace_back(v, w);
+            adj[v].emplace_back(u, w);
+            ind[i] = {u, v};
+        }
+        chainId = 0, pos = 0;
+        dfs(1);
+        Hld(1);
+        init();
+        string str;
+        cin >> str;
+        while (str.front() != 'D') {
+            if (str.front() == 'Q') {
+                cin >> u >> v;
+                cout << Query(u, v) << '\n';
+            } else {
+                cin >> u >> v;
+                Change(u, v);
+            }
+            cin >> str;
+        }
+    }
+    return 0;
+}

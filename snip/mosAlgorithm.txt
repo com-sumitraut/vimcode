@@ -1,0 +1,27 @@
+class mos {
+public:
+    void solve() {
+        int blk = ceil(sqrt(n));
+        sort(que.begin(), que.end(), [&](const qu &lhs, const qu &rhs) {
+            return make_pair(lhs.l / blk, lhs.r) < make_pair(rhs.l / blk, rhs.r);
+        });
+        unordered_map<int, int> mp;
+        int l = 0, r = 0;
+// dhyan dena hai ans in range [l,r) not [l,r]
+        for (auto &it:que) {
+            while (l > it.l)
+                --l, ++mp[a[l]];
+            while (r < it.r)
+                ++mp[a[r]], ++r;
+            while (l < it.l)
+                --mp[a[l]], ++l;
+            while (r > it.r)
+                --r, --mp[a[r]];
+            for (auto &mit:mp)
+                ans[it.p] += mit.second >= k;
+        }
+        for (auto &it:ans)
+            cout << it << ' ';
+        cout << '\n';
+    }
+};

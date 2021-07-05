@@ -1,0 +1,486 @@
+//node version
+class Vertex { // [lower,upper)
+public:
+    int sl, sr;
+    int Sg = 0;
+    Vertex *lch = nullptr, *rch = nullptr;
+
+    Vertex(int lb, int rb) {
+        sl = lb;
+        sr = rb;
+    }
+
+    void build(vector<int> &ar) {
+        if (sl + 1 == sr) {
+            Sg = ar[sl];
+            return;
+        }
+        int md = (sl + sr) >> 1;
+        lch = new Vertex(sl, md);
+        rch = new Vertex(md, sr);
+        lch->build(ar);
+        rch->build(ar);
+        Sg = min(lch->Sg, rch->Sg);
+    }
+
+    void update(int idx, int vl) {
+        if (sl + 1 == sr) {
+            Sg = vl;
+            return;
+        }
+        if (idx < lch->sr)
+            lch->update(idx, vl);
+        else
+            rch->update(idx, vl);
+        Sg = min(lch->Sg, rch->Sg);
+    }
+
+    int query(int ql, int qr) {
+        if (qr <= sl || sr <= ql) {
+            return INT_MAX;
+        }
+        if (ql == sl && sr == qr) {
+            return Sg;
+        }
+        return min(lch->query(ql, min(qr, lch->sr)),
+                   rch->query(max(ql, rch->sl), qr));
+    }
+
+    void fi() {
+        if (sl + 1 == sr)
+            return;
+        lch->fi();
+        rch->fi();
+        delete lch;
+        delete rch;
+    }
+};
+
+void solve() {
+    int n, q;
+    cin >> n >> q;
+    vector<int> ar(n);
+    cin >> ar;
+    Vertex *Seg = new Vertex(0, n);
+    Seg->build(ar);
+    while (q--) {
+        char op;
+        cin >> op;
+        if (op == 'q') {
+            int l, r;
+            cin >> l >> r;
+            --l;
+            cout << Seg->query(l, r) << '\n';
+        } else {
+            int x, y;
+            cin >> x >> y;
+            --x;
+            Seg->update(x, y);
+        }
+    }
+//   Seg->fi();
+//   delete Seg;
+}
+
+//
+void buildsg(int sgmnt[], int arr[], int node, int l, int r) {
+    if (l == r) {
+        sgmnt[node] = arr[l];
+        return;
+    }
+    int mid = l + (r - l) / 2;
+    buildsg(sgmnt, arr, 2 * node + 1, l, mid);
+    buildsg(sgmnt, arr, 2 * node + 2, mid + 1, r);
+    sgmnt[node] = min(sgmnt[2 * node + 1], sgmnt[2 * node + 2]);
+}
+
+void update(int sgmnt[], int node, int val, int idx, int l, int r) {
+    if (l == r) {
+        sgmnt[node] = val;
+        return;
+    }
+    int mid = l + (r - l) / 2;
+    if (idx <= mid)
+        update(sgmnt, node * 2 + 1, val, idx, l, mid);
+    else
+        update(sgmnt, node * 2 + 2, val, idx, mid + 1, r);
+    sgmnt[node] = min(sgmnt[2 * node + 1], sgmnt[2 * node + 2]);
+}
+
+int query(int sgmnt[], int node, int ql, int qr, int l, int r) {
+    if (qr < l || ql > r) {
+        return mod;
+    }
+    if (ql <= l && r <= qr) {
+        return sgmnt[node];
+    }
+    int m = l + (r - l) / 2;
+    int le = query(sgmnt, 2 * node + 1, ql, qr, l, m);
+    int re = query(sgmnt, 2 * node + 2, ql, qr, m + 1, r);
+    return min(le, re);
+}
+
+class Segmenttree {
+    vector <pair<ll, int>> Sg;
+    vector <ll> ar;
+    int n;
+    pair<ll, int> Neutral_Element = {1e18, 0};
+
+    pair<ll, int> single(const ll &val) {
+        return {val, 1};
+    }
+
+    void combine(pair<ll, int> &ans, const pair<ll, int> &val) {
+        if (ans.first == val.first)
+            ans.second += val.second;
+        else if (ans.first > val.first)
+            ans = val;
+    }
+
+    void combine(pair<ll, int> &ans, const pair<ll, int> &lv, const pair<ll, int> &rv) {
+        if (lv.first > rv.first)
+            ans = rv;
+        else if (lv.first < rv.first)
+            ans = lv;
+        else ans = {lv.first, lv.second + rv.second};
+    }
+
+    void buildsg() {
+        for (int ind = n, j = 0; j < n; ++ind, ++j)
+            Sg[ind] = single(ar[j]);
+        for (int ind = n - 1; ind > 0; --ind)
+            combine(Sg[ind], Sg[ind << 1], Sg[ind << 1 | 1]);
+    }
+
+    void update(int ind, ll &val) {
+        ind += n;
+        Sg[ind] = single(val);
+        ind >>= 1;
+        while (ind > 0) {
+            combine(Sg[ind], Sg[ind << 1], Sg[ind << 1 | 1]);
+            ind >>= 1;
+        }
+    }
+
+    // void update(int ind, ll &val)
+    // {
+    //     ind += n;
+    //     Sg[ind] = single(val);
+    //     int lc,rc;
+    //     while (ind > 0)
+    //     {
+    //         if(ind&1)
+    //             lc=ind-1,rc=ind;
+    //         else
+    //             lc=ind,rc=ind+1;
+    //         ind >>= 1;
+    //         combine(Sg[ind], Sg[lc], Sg[rc]);
+    //     }
+    // }
+    pair<ll, int> query(int l, int r) {
+        l += n;
+        r += n;
+        pair<ll, int> ans = {1e18, 0};
+        while (l <= r) {
+            if (l & 1)
+                combine(ans, Sg[l++]);
+            if (!(r & 1))
+                combine(ans, Sg[r--]);
+            l >>= 1;
+            r >>= 1;
+        }
+        return ans;
+    }
+
+public:
+    Segmenttree() {
+        cin >> n >> m;
+        ar.resize(n);
+        for (auto &it:ar)
+            cin >> it;
+        Sg.resize(n << 1);
+        buildsg();
+    }
+};
+
+class Segmenttree {
+    vector <pair<ll, int>> Sg;
+    vector <ll> ar;
+    int n;
+
+    int szsg(int nn) {
+        --nn;
+        nn |= nn >> 1;
+        nn |= nn >> 2;
+        nn |= nn >> 4;
+        nn |= nn >> 8;
+        nn |= nn >> 16;
+        ++nn;
+        return nn << 1;
+    }
+
+    pair<ll, int> Neutral_Element = {1e18, 0};
+
+    pair<ll, int> single(const ll &val) {
+        return {val, 1};
+    }
+
+    pair<ll, int> combine(const pair<ll, int> &lv, const pair<ll, int> &rv) {
+        if (lv.first > rv.first)
+            return rv;
+        if (lv.first < rv.first)
+            return lv;
+        return {lv.first, lv.second + rv.second};
+    }
+
+    void buildsg(int nd, int sl, int sr) {
+        if (sl == sr) {
+            Sg[nd] = single(ar[sl]);
+            return;
+        }
+        int md = (sl + sr) >> 1;
+        buildsg(nd << 1 | 1, sl, md);
+        buildsg((nd + 1) << 1, md + 1, sr);
+        Sg[nd] = combine(Sg[nd << 1 | 1], Sg[(nd + 1) << 1]);
+    }
+
+    void update(int nd, int sl, int sr, int &idx, ll &val) {
+        if (sl == sr) {
+            Sg[nd] = single(val);
+            return;
+        }
+        int md = sl + (sr - sl) / 2;
+        if (idx > md)
+            update((nd + 1) << 1, md + 1, sr, idx, val);
+        else
+            update(nd << 1 | 1, sl, md, idx, val);
+        Sg[nd] = combine(Sg[nd << 1 | 1], Sg[(nd + 1) << 1]);
+    }
+
+    pair<ll, int> query(int nd, int sl, int sr, int &ql, int &qr) {
+        if (qr < sl || sr < ql) {
+            return Neutral_Element;
+        }
+        if (ql <= sl && sr <= qr) {
+            return Sg[nd];
+        }
+        int md = sl + (sr - sl) / 2;
+        auto le = query(nd << 1 | 1, sl, md, ql, qr);
+        auto re = query((nd + 1) << 1, md + 1, sr, ql, qr);
+        return combine(le, re);
+    }
+
+public:
+    Segmenttree() {
+        cin >> n >> m;
+        ar.resize(n);
+        for (auto &it : ar)
+            cin >> it;
+        Sg.resize(szsg(n) - 1);
+        buildsg(0, 0, n - 1);
+    }
+};
+
+class Segmenttree {
+    vector <pair<ll, int>> Sg;
+    vector <ll> ar;
+    int n;
+
+    int szsg(int nn) {
+        --nn;
+        nn |= nn >> 1;
+        nn |= nn >> 2;
+        nn |= nn >> 4;
+        nn |= nn >> 8;
+        nn |= nn >> 16;
+        ++nn;
+        return nn << 1;
+    }
+
+    pair<ll, int> Neutral_Element = {1e18, 0};
+
+    pair<ll, int> single(const ll &val) {
+        return {val, 1};
+    }
+
+    pair<ll, int> combine(const pair<ll, int> &lv, const pair<ll, int> &rv) {
+        if (lv.first > rv.first)
+            return rv;
+        if (lv.first < rv.first)
+            return lv;
+        return {lv.first, lv.second + rv.second};
+    }
+
+    void buildsg(int nd, int sl, int sr) {
+        if (sl == sr) {
+            Sg[nd] = single(ar[sl]);
+            return;
+        }
+        int md = (sl + sr) >> 1;
+        buildsg(nd << 1 | 1, sl, md);
+        buildsg((nd + 1) << 1, md + 1, sr);
+        Sg[nd] = combine(Sg[nd << 1 | 1], Sg[(nd + 1) << 1]);
+    }
+
+    void update(int nd, int sl, int sr, int &idx, ll &val) {
+        if (sl == sr) {
+            Sg[nd] = single(val);
+            return;
+        }
+        int md = sl + (sr - sl) / 2;
+        if (idx > md)
+            update((nd + 1) << 1, md + 1, sr, idx, val);
+        else
+            update(nd << 1 | 1, sl, md, idx, val);
+        Sg[nd] = combine(Sg[nd << 1 | 1], Sg[(nd + 1) << 1]);
+    }
+
+    pair<ll, int> query(int nd, int sl, int sr, int &ql, int &qr) {
+        if (qr < sl || sr < ql) {
+            return Neutral_Element;
+        }
+        if (ql <= sl && sr <= qr) {
+            return Sg[nd];
+        }
+        int md = sl + (sr - sl) / 2;
+        auto le = query(nd << 1 | 1, sl, md, ql, qr);
+        auto re = query((nd + 1) << 1, md + 1, sr, ql, qr);
+        return combine(le, re);
+    }
+
+public:
+    Segmenttree() {
+        cin >> n;
+        ar.resize(n);
+        for (auto &it : ar)
+            cin >> it;
+        Sg.resize(szsg(n) - 1);
+        buildsg(0, 0, n - 1);
+    }
+};
+// #define ll long long
+#define ll int
+typedef ll item;
+
+class Segtree {
+    // vector<item> Sg;
+    // vector<ll> ar;
+    // int n;
+
+    // item Neutral_Element = 0;
+
+    // item single(const item &val) {
+    // return val;
+    // }
+
+    // item combine(const item &lv, const item &rv) {
+    // return lv+rv;
+    // }
+
+    // void buildsg(int nd, int sl, int sr, vector<item> &ar) {
+    // if (sl == sr) {
+    // Sg[nd] = single(ar[sl]);
+    // return;
+    // }
+    // int md = (sl + sr) >> 1;
+    // buildsg(nd << 1 | 1, sl, md, ar);
+    // buildsg((nd + 1) << 1, md + 1, sr, ar);
+    // Sg[nd] = combine(Sg[nd << 1 | 1], Sg[(nd + 1) << 1]);
+    // }
+
+    //  void update(int nd, int sl, int sr, int idx, item val)
+    //  {
+    //  if (sl == sr)
+    //  {
+    //  Sg[nd] = single(val);
+    //  return;
+    //  }
+    //  int md = sl + (sr - sl) / 2;
+    //  if (idx > md)
+    //  update((nd + 1) << 1, md + 1, sr, idx, val);
+    //  else
+    //  update(nd << 1 | 1, sl, md, idx, val);
+    //  Sg[nd] = combine(Sg[nd << 1 | 1], Sg[(nd + 1) << 1]);
+    //  }
+    // item query(int nd, int sl, int sr, int ql, int qr) {
+    // if (qr < sl || sr < ql) {
+    // return Neutral_Element;
+    // }
+    // if (ql <= sl && sr <= qr) {
+    // return Sg[nd];
+    // }
+    // int md = (sl + sr) >> 1;
+    // auto le = query(nd << 1 | 1, sl, md, ql, qr);
+    // auto re = query((nd + 1) << 1, md + 1, sr, ql, qr);
+    // return combine(le, re);
+    // }
+    int szsg(int nn) {
+        --nn;
+        nn |= nn >> 1;
+        nn |= nn >> 2;
+        nn |= nn >> 4;
+        nn |= nn >> 8;
+        nn |= nn >> 16;
+        ++nn;
+        return nn << 1;
+    }
+
+public:
+    Segtree() {
+        // cin >> n;
+        // ar.resize(n);
+        // for (auto &it : ar)
+        // cin >> it;
+        // Sg.resize(szsg(n) - 1);
+        // buildsg(0, 0, n - 1);
+    }
+
+    vector<ll> operations;
+    ll No_Operation = INT_MIN;
+
+    ll operation(ll a, ll b) {
+        if (b == No_Operation)
+            return a;
+        return b;
+    }
+
+    void apply_operation(ll &a, ll b) {
+        a = operation(a, b);
+    }
+
+    void propogate(int nd, int sl, int sr) {
+        if (sl == sr) return;
+        apply_operation(operations[nd << 1 | 1], operations[nd]);
+        apply_operation(operations[(nd + 1) << 1], operations[nd]);
+        operations[nd] = No_Operation;
+    }
+
+    void init(int N) {
+        operations.resize(szsg(N) - 1, No_Operation);
+    }
+
+    void modify(int nd, int sl, int sr, int ql, int qr, ll val) {
+        propogate(nd, sl, sr);
+        if (qr < sl || sr < ql)
+            return;
+        if (ql <= sl && sr <= qr) {
+            apply_operation(operations[nd], val);
+            return;
+        }
+        int md = (sl + sr) >> 1;
+        modify(nd << 1 | 1, sl, md, ql, qr, val);
+        modify((nd + 1) << 1, md + 1, sr, ql, qr, val);
+    }
+
+    item get(int nd, int sl, int sr, int idx) {
+        propogate(nd, sl, sr);
+        if (sl == sr)
+            return operations[nd];
+        int md = (sl + sr) >> 1;
+        if (idx > md)
+            return get((nd + 1) << 1, md + 1, sr, idx);
+        else
+            return get(nd << 1 | 1, sl, md, idx);
+    }
+};
+

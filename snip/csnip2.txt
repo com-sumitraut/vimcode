@@ -1,0 +1,44 @@
+#include <assert.h>
+#include <limits.h>
+#include <math.h>
+#include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
+#define ll long long
+#define deb1(x) fprintf(stderr, #x "--> %d\n", x);
+#define deb2(x,y) fprintf(stderr, #x "--> %d  " #y "--> %d\n", x,y);
+#define deb3(x,y,z) fprintf(stderr, #x "--> %d  " #y "--> %d  " #z "--> %d\n", x,y,z);
+#define debc1(x) fprintf(stderr, #x "--> %c\n", x);
+#define debc2(x,y) fprintf(stderr, #x "--> %c  "#y "--> %c\n", x,y);
+#define debc3(x,y,z) fprintf(stderr, #x "--> %c  " #y "--> %c  " #z "--> %c\n", x,y,z);
+#define debs1(x) fprintf(stderr, #x "--> %s\n", x);
+#define debs2(x,y) fprintf(stderr, #x "--> %s" #y "--> %s\n", x,y);
+#define debs3(x,y,z) fprintf(stderr, #x "--> %s  " #y "--> %s  " #z "--> %s\n", x,y,z);
+#define scanarr(x,n,arr) for(int i=x;i<n;++i) {scanf("%d ",&arr[i]);}
+#define printarr(x,n,arr) for(int i=x;i<n;++i) {printf("%d ",arr[i]);}printf("\n");
+
+void solve() {
+	
+}
+
+int main() {
+#ifndef ONLINE_JUDGE
+	// freopen("int.txt","r",stdin);
+	// freopen("out.txt","w",stdout);
+	clock_t start_t, end_t;
+	double total_t;
+	start_t = clock();
+#endif
+
+	// int t; scanf("%d",&t); while(t--)
+	solve();
+
+#ifndef ONLINE_JUDGE
+	end_t = clock();
+	total_t = 1e3 * (double)(end_t - start_t) / CLOCKS_PER_SEC;
+	fprintf(stderr, "\nRunTime: %lf ms\n", total_t);
+#endif
+	return 0;
+}

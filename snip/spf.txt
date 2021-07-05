@@ -1,0 +1,16 @@
+const int Nax(1e6 + 1);
+int spf[Nax];
+
+void sieve() {
+    iota(spf, spf + Nax, 0);
+    for (int i = 2; i * i < Nax; ++i) {
+        if (spf[i] == i) {
+            for (int j = i * i; j < Nax; j += i) {
+                if (spf[j] == j) {
+                    spf[j] = i;
+                }
+            }
+        }
+    }
+}
+

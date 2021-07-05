@@ -1,0 +1,33 @@
+template<typename T>
+T exgcd(T a,T b,T &x,T &y) {
+    if(b==0) {
+        x=1;
+        y=0;
+        return a;
+    }
+    T x1,y1;
+    T d=exgcd(b,a%b,x1,y1);
+    x=y1;
+    y=x1-(a/b)*y1;
+    return d;
+}
+
+
+//
+int d,x,y,tmp;
+template<typename T>
+void exgcd(T a,T b) {
+    if(b==0) {
+        d=a;
+        x=1;
+        y=0;
+    } else {
+        exgcd(b,a%b);
+        tmp=y;
+        y=x-(a/b)*y;
+        x=tmp;
+        //basically (x,y)={y1,x1-(a/b)*y1};
+        //x-=(a/b)*y;
+        //swap(x,y);
+    }
+}

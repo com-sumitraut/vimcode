@@ -1,0 +1,22 @@
+void permuteall(int l) {
+    if (l == r) {
+        // jo main chaahu
+    } else {
+        for (int k = l; k < n; ++k) {
+            swap(arr[l], arr[k]);
+            permute(l + 1);
+            swap(arr[l], arr[k]);
+        }
+    }
+}
+void permutation(int ar[], int i, int n) {
+    if (i == n) {
+
+    } else {
+        for (int j = i; j <= n; ++j) {
+            swap(ar[i], ar[j]);
+            permutation(ar, i + 1, n);
+            swap(ar[i], ar[j]);
+        }
+    }
+}

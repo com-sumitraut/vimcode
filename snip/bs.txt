@@ -1,0 +1,10 @@
+int bs(int arr[], int l, int n, int val) {
+    int m, nt = n;
+    while (l < n) {
+        m = l + (n - l) / 2;
+        if (arr[m] == val) return m;
+        if (arr[m] < val) l = m + 1;
+        else n = m;
+    }
+    return nt;
+}

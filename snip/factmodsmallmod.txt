@@ -1,0 +1,15 @@
+ll factmod(ll ft) {
+    ll res=1;
+    while(ft>1) {
+        if(ft&1){
+            res*=(mod-1);
+            res%=mod;
+        }
+        for(int i=2;i<=ft%mod;++i) {
+            res*=i;
+            res%=mod;
+        }
+        ft/=mod;
+    }
+    return res;
+}

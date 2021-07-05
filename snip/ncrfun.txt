@@ -1,0 +1,23 @@
+int64_t ncr(int64_t N,int64_t R) {
+	if(R>N-R) R=N-R;
+	int64_t Nom=1,Dnom=1;
+	while(R) {
+		Nom*=N;
+		Dnom*=R;
+		--N;
+		--R;
+	}
+	return Nom/Dnom;
+}
+
+int64_t ncr(int64_t N,int64_t R) {
+	if(R>N-R) R=N-R;
+	int64_t Nom=1,Dnom=1;
+	while(R) {
+		Nom=(Nom*N)%mod;
+		Dnom=(Dnom*R)%mod;
+		--N;
+		--R;
+	}
+	return Nom*pwm(Dnom,mod-2)%mod;
+}

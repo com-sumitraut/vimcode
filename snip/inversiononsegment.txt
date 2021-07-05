@@ -1,0 +1,293 @@
+class Stree { //Range--> [lower,upper]
+    int n;
+    vector <ll> inv;
+    vector<int> ar;
+    vector <vector<int>> fre;
+
+    int szsg(int nn) {
+        --nn;
+        nn |= nn >> 1;
+        nn |= nn >> 2;
+        nn |= nn >> 4;
+        nn |= nn >> 8;
+        nn |= nn >> 16;
+        ++nn;
+        return nn << 1;
+    }
+
+    void build(int nd, int sl, int sr) {
+        if (sl == sr) {
+            fre[nd][ar[sl]] = 1;
+            return;
+        }
+        int mid = (sl + sr) >> 1, chl = nd << 1 | 1, chr = chl + 1;
+        build(chl, sl, mid);
+        build(chr, mid + 1, sr);
+        inv[nd] = inv[chl] + inv[chr];
+        ll c = 0;
+        for (int j = 1; j < 41; ++j)
+            c += fre[chl][j];
+        for (int i = 1; i < 41; ++i) {
+            c -= fre[chl][i];
+            inv[nd] += c * fre[chr][i];
+            fre[nd][i] = fre[chl][i] + fre[chr][i];
+        }
+    }
+
+    void update(int nd, int sl, int sr, const int &idx, const int &vl) {
+        if (sl == sr) {
+            --fre[nd][ar[idx]];
+            ++fre[nd][vl];
+            return;
+        }
+        int mid = (sl + sr) >> 1, chl = nd << 1 | 1, chr = chl + 1;
+        if (idx > mid) {
+            update(chr, mid + 1, sr, idx, vl);
+        } else {
+            update(chl, sl, mid, idx, vl);
+        }
+        inv[nd] = inv[chl] + inv[chr];
+        ll c = 0;
+        for (int j = 1; j < 41; ++j)
+            c += fre[chl][j];
+        for (int i = 1; i < 41; ++i) {
+            c -= fre[chl][i];
+            inv[nd] += c * fre[chr][i];
+            fre[nd][i] = fre[chl][i] + fre[chr][i];
+        }
+    }
+
+    pair <ll, vector<int>> query(int nd, int sl, int sr, int ql, int qr) {
+        if (qr < sl || sr < ql)
+            return {-1ll, vector<int>(41)};
+        if (ql <= sl && sr <= qr) {
+            return {inv[nd], fre[nd]};
+        }
+        int md = (sl + sr) >> 1;
+        auto le = query(nd << 1 | 1, sl, md, ql, qr);
+        auto re = query((nd + 1) << 1, md + 1, sr, ql, qr);
+        if (le.first == -1ll)
+            return re;
+        if (re.first == -1ll)
+            return le;
+        ll ans = le.first + re.first;
+        vector<int> co(41);
+        ll c = 0;
+        for (int j = 1; j < 41; ++j) {
+            c += le.second[j];
+        }
+        for (int i = 1; i < 41; ++i) {
+            c -= le.second[i];
+            ans += c * re.second[i];
+            co[i] = le.second[i] + re.second[i];
+        }
+        return {ans, co};
+    }
+
+public:
+    int q;
+
+    Stree() {
+        cin >> n >> q;
+        ar.resize(n);
+        cin >> ar;
+//        debug3(n,q,ar);
+        int n_ = szsg(n) - 1;
+        inv.resize(n_);
+        fre.resize(n_, vector<int>(41));
+    }
+
+    void solve() {
+        build(0, 0, n - 1);
+//        debug1(inv);
+        while (q--) {
+            int op;
+            cin >> op;
+            if (op == 1) {
+                int l, r;
+                cin >> l >> r;
+                --l, --r;
+                cout << query(0, 0, n - 1, l, r).first << '\n';
+            } else {
+                int idx, vl;
+                cin >> idx >> vl;
+                --idx;
+                update(0, 0, n - 1, idx, vl);
+                ar[idx] = vl;
+            }
+        }
+    }
+};
+
+int main() {
+#ifndef ONLINE_JUDGE
+    Timer timer;
+#endif
+    speedup;
+    Stree Seg;
+    Seg.solve();
+    return 0;
+}
+
+
+//binary tree version
+/* Coder: @SumitRaut
+ * Date: 10-10-2020 23:15:00
+ */
+#include <bits/stdc++.h>
+
+#define speedup ios::sync_with_stdio(false), cin.tie(nullptr), cout.tie(nullptr)
+using namespace std;
+
+#define debug1(x) cout << #x << ' ' << x << '\n'
+#define debug2(x, y) cout << #x << ' ' << x << ' ' << #y << ' ' << y << '\n'
+#define debug3(x, y, z)                                                        \
+  cout << #x << ' ' << x << ' ' << #y << ' ' << y << ' ' << #z << ' ' << z     \
+       << '\n'
+#define ll long long
+
+#ifndef ONLINE_JUDGE
+
+class Timer {
+    chrono::high_resolution_clock::time_point start_t, end_t;
+public:
+    Timer() { start_t = chrono::high_resolution_clock::now(); }
+
+    ~Timer() {
+        end_t = chrono::high_resolution_clock::now();
+        auto duration =
+                chrono::duration_cast<chrono::milliseconds>(end_t - start_t);
+        cerr << "\nRunTime: " << duration.count() << "ms" << '\n';
+    }
+};
+
+#endif
+
+template<typename T>
+istream &operator>>(istream &is, vector<T> &v) {
+    for (auto &it : v)
+        is >> it;
+    return is;
+}
+
+template<typename T>
+ostream &operator<<(ostream &os, const vector<T> &v) {
+    for (auto &it : v)
+        os << it << ' ';
+    return os;
+}
+
+class Vertex { // [lower,upper)
+public:
+    int sl, sr;
+    ll inv = 0;
+    vector<int> fre;
+    Vertex *lch = nullptr, *rch = nullptr;
+
+    Vertex(int lb, int rb) : fre(41), sl{lb}, sr{rb} {}
+
+    void build(const vector<int> &ar) {
+        if (sl + 1 == sr) {
+            fre[ar[sl]] = 1;
+            return;
+        }
+        int md = (sl + sr) >> 1;
+        lch = new Vertex(sl, md);
+        rch = new Vertex(md, sr);
+        lch->build(ar);
+        rch->build(ar);
+        inv = lch->inv + rch->inv;
+        ll c = 0;
+        for (int i = 1; i < 41; ++i)
+            c += lch->fre[i];
+        for (int i = 1; i < 41; ++i) {
+            c -= lch->fre[i];
+            inv += c * rch->fre[i];
+            fre[i] = lch->fre[i] + rch->fre[i];
+        }
+    }
+
+    void update(const int &idx, const int &vl, const int &pvl) {
+        if (sl + 1 == sr) {
+            fre[pvl] = 0;
+            fre[vl] = 1;
+            return;
+        }
+        if (idx < lch->sr)
+            lch->update(idx, vl, pvl);
+        else
+            rch->update(idx, vl, pvl);
+        inv = lch->inv + rch->inv;
+        ll c = 0;
+        for (int i = 1; i < 41; ++i)
+            c += lch->fre[i];
+        for (int i = 1; i < 41; ++i) {
+            c -= lch->fre[i];
+            inv += c * rch->fre[i];
+            fre[i] = lch->fre[i] + rch->fre[i];
+        }
+    }
+
+    pair<ll, vector<int>> query(int ql, int qr) {
+        if (qr <= sl || sr <= ql) {
+            return {-1ll, vector<int>(41)};
+        }
+        if (ql == sl && sr == qr) {
+            return {inv, fre};
+        }
+        auto le = lch->query(ql, min(qr, lch->sr));
+        auto re = rch->query(max(ql, rch->sl), qr);
+        if (le.first == -1ll)
+            return re;
+        if (re.first == -1ll)
+            return le;
+        ll ans = le.first + re.first;
+        vector<int> co(41);
+        ll c = 0;
+        for (int i = 1; i < 41; ++i)
+            c += le.second[i];
+        for (int i = 1; i < 41; ++i) {
+            c -= le.second[i];
+            ans += c * re.second[i];
+            co[i] = le.second[i] + re.second[i];
+        }
+        return {ans, co};
+    }
+
+    void fi() {
+        if (sl + 1 == sr)
+            return;
+        int md = (sl + sr) >> 1;
+        lch->fi();
+        rch->fi();
+        delete lch;
+        delete rch;
+    }
+};
+
+void solve() {
+    int n, q;
+    cin >> n >> q;
+    vector<int> ar(n);
+    cin >> ar;
+    Vertex *Seg = new Vertex(0, n);
+    Seg->build(ar);
+    while (q--) {
+        int op;
+        cin >> op;
+        if (op == 1) {
+            int l, r;
+            cin >> l >> r;
+            --l;
+            cout << Seg->query(l, r).first << '\n';
+        } else {
+            int x, y;
+            cin >> x >> y;
+            --x;
+            Seg->update(x, y, ar[x]);
+            ar[x] = y;
+        }
+    }
+    Seg->fi();
+    delete Seg;
+}

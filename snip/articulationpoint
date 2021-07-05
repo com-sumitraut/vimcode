@@ -1,0 +1,71 @@
+class articulation {
+public:
+    vector <vector<int>> adj;
+    vector<bool> vis/*,iscutpnt*/;
+    vector<int> disc, low;
+    set<int> cutpnt;
+    set <pair<int, int>> bridge;
+    int n;
+    int dtime;
+
+    articulation() {
+        int m;
+        cin >> n >> m;
+        vis.resize(n);
+        adj.resize(n);
+        disc.resize(n);
+        low.resize(n);
+        int u, v;
+        dtime = 0;
+        while (m--) {
+            cin >> u >> v;
+            adj[u].push_back(v);
+            adj[v].push_back(u);
+        }
+    }
+
+    void Algo() {
+        for (int v = 0; v < n; ++v) {
+            if (!vis[v]) {
+                algo(v);
+            }
+        }
+    }
+
+    void algo(int cur, int p = -1) {
+        vis[cur] = 1;
+        disc[cur] = low[cur] = ++dtime;
+        int children = 0;
+        for (auto it:adj[cur]) {
+            if (it != p) {
+                if (!vis[it]) {
+                    ++children;
+                    algo(it, cur);
+                    low[cur] = min(low[cur], low[it]);
+                    if (~p && low[it] >= disc[cur]) {
+                        cutpnt.insert(cur);
+                    }
+                    if (low[it] > disc[cur]) {
+                        if (cur < it)
+                            bridge.emplace(cur, it);
+                        else
+                            bridge.emplace(it, cur);
+                    }
+                } else {
+                    low[cur] = min(low[cur], disc[it]);
+                }
+            }
+        }
+        if (p == -1 && children > 1) {
+            cutpnt.insert(cur);
+        }
+    }
+
+    void print() {
+        cout << cutpnt.size() << '\n';
+        for (auto &it:cutpnt) cout << it << ' ';
+        cout << '\n';
+        cout << bridge.size() << '\n';
+        for (auto &it:bridge) cout << it.first << ' ' << it.second << '\n';
+    }
+};

@@ -1,0 +1,103 @@
+
+vi ar;
+
+const ll inf = 1e18;
+#define int ll;
+struct SgNode {
+    ll val;
+	int	lazy,sum, len;
+	SgNode() {}
+    SgNode(ll val_, int lazy_, int sum_, int len_):val{val_},lazy{lazy_},sum{sum_},len{len_} {}
+    void bMerge(const SgNode &lhs, const SgNode &rhs) {
+		val=lhs.val+rhs.val+1ll*lhs.len*rhs.sum;
+		sum=lhs.sum+rhs.sum;
+		len=lhs.len+rhs.len;
+    }
+};
+
+ostream &operator<<(ostream &os, const SgNode toPt) {
+    return os;
+}
+
+class SgTree {
+   public:
+    int szsg(int nn) {
+        --nn;
+        nn |= nn >> 1;
+        nn |= nn >> 2;
+        nn |= nn >> 4;
+        nn |= nn >> 8;
+        nn |= nn >> 16;
+        ++nn;
+        return nn << 1;
+    }
+
+    vector<SgNode> Sg;
+    int n;
+
+    SgTree(int n_) {
+        n = n_;
+        n_ = szsg(n_);
+        Sg.resize(n_);
+        build(0, 0, n - 1);
+    }
+    
+    void build(int nd, int sl, int sr) {
+        int md = (sl + sr) >> 1, chl = nd << 1 | 1, chr = chl + 1;
+        if (sl == sr) {
+            Sg[nd] = {ar[sl],0,ar[sl],1};
+            return;
+        }
+        build(chl, sl, md);
+        build(chr, md + 1, sr);
+        Sg[nd].bMerge(Sg[chl], Sg[chr]);
+		Sg[nd].lazy=0;
+    }
+    
+    SgNode qMerge(const SgNode lhs, const SgNode rhs) {
+        SgNode res;
+        res.bMerge(lhs, rhs);
+        return res;
+    }
+    
+    void apply(int id, int d) {
+		Sg[id].lazy=d;
+		Sg[id].sum+=1ll*Sg[id].len*d;
+		Sg[id].val+=1ll*d*(Sg[id].len)*(Sg[id].len+1)/2;
+    }
+
+	int No_Operation=0;
+
+    void propogate(int nd, int chl, int chr) {
+        if (Sg[nd].lazy == No_Operation) return;
+        apply(chl, Sg[nd].lazy);
+        apply(chr, Sg[nd].lazy);
+        Sg[nd].lazy = No_Operation;
+    }
+
+    void modify(int nd, int sl, int sr, int ql, int qr, int d) {
+        int md = (sl + sr) >> 1, chl = nd << 1 | 1, chr = chl + 1;
+        if (sl != sr) propogate(nd, chl, chr);
+        if (qr < sl || sr < ql) return;
+        if (ql <= sl && sr <= qr) {
+            apply(nd, d);
+            return;
+        }
+        modify(chl, sl, md, ql, qr, d);
+        modify(chr, md + 1, sr, ql, qr, d);
+        Sg[nd].bMerge(Sg[chl], Sg[chr]);
+    }
+
+    SgNode Rquery(int nd, int sl, int sr, int ql, int qr) {
+        int md = (sl + sr) >> 1, chl = nd << 1 | 1, chr = chl + 1;
+        if (sl != sr) propogate(nd, chl, chr);
+        if (qr < sl || sr < ql) return {0,0,0,0};
+        if (ql <= sl && sr <= qr) return Sg[nd];
+		auto lhs=Rquery(chl, sl, md, ql, qr);
+		auto rhs=Rquery(chr, md + 1, sr, ql, qr);
+		return qMerge(lhs,rhs);
+    }
+
+};
+
+

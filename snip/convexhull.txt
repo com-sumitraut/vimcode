@@ -1,0 +1,62 @@
+typedef struct {
+    ll x, y;
+} pr;
+
+bool rmv(pr *p, pr *q, pr *r) {
+    return (q->y - p->y) * (r->x - p->x) - (q->x - p->x) * (r->y - p->y) > 0;
+}
+
+pr pnt[100001];
+pr L[200002], R[50001];
+int n1, n2, i, j, k;
+int n;
+
+void MergeSort(int l, int r) {
+    if (r > l) {
+        int m = l + (r - l) / 2;
+        MergeSort(l, m);
+        MergeSort(m + 1, r);
+        for (i = 0, n1 = m + 1 - l; i < n1; i++) L[i] = pnt[l + i];
+        for (j = 0, n2 = r - m; j < n2; j++) R[j] = pnt[m + 1 + j];
+        i = j = 0, k = l;
+        while (i < n1 && j < n2)
+            pnt[k++] = L[i].x == R[j].x ? L[i].y < R[j].y ? L[i++] : R[j++] : L[i].x < R[j].x ? L[i++] : R[j++];
+        while (i < n1) pnt[k++] = L[i++];
+        while (j < n2) pnt[k++] = R[j++];
+    }
+}
+
+ll Areainto2() {
+    ll ansinto2 = 0;
+    i = 0, j = k - 1;
+    while (i < k) {
+        ansinto2 += (L[i].x + L[j].x) * (L[j].y - L[i].y);
+        j = i++;
+    }
+    if (ansinto2 < 0)
+        return -ansinto2;
+    if (ansinto2 == 0) return -1;
+    return ansinto2;
+}
+
+ll solve() {
+    i = -1, n = scan();
+    if (n < 3) return -1ll;
+    while (++i < n) pnt[i].x = scan(), pnt[i].y = scan();
+    MergeSort(0, n - 1);
+    // for(i=0;i<n;++i) debug2(pnt[i].x,pnt[i].y);
+    i = k = 2;
+    L[0] = pnt[0], L[1] = pnt[1];
+    while (i < n) {
+        while (k > 1 && rmv(L + k - 2, L + k - 1, pnt + i)) --k;
+        L[k++] = pnt[i++];
+    }
+    i = n - 2, j = k;
+    while (~i) {
+        while (k > j && rmv(L + k - 2, L + k - 1, pnt + i)) --k;
+        L[k++] = pnt[i--];
+    }
+    --k;
+    // for(i=0;i<k;++i) debug2(L[i].x,L[i].y);
+    return Areainto2();
+}

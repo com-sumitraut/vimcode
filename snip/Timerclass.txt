@@ -1,0 +1,2 @@
+class Timer { chrono::high_resolution_clock::time_point start_t, end_t; public: Timer() { start_t=chrono::high_resolution_clock::now(); } ~Timer() { end_t = chrono::high_resolution_clock::now(); auto duration = chrono::duration_cast<chrono::milliseconds>(end_t-start_t); cerr<<"\nRunTime: "<<duration.count()<<"ms"<<'\n'; } };
+class Timer { clock_t start_t, end_t; public: Timer() { start_t=clock(); } ~Timer() { end_t = clock(); double duration = 1e3 * (double) (end_t-start_t)/CLOCKS_PER_SEC; cerr << "\nRunTime: " <<duration <<"ms"<<'\n'; } };

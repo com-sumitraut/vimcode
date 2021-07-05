@@ -1,0 +1,35 @@
+class KMP {
+public:
+    int algo(string P, string T) {
+        int m = P.length(), n = T.length();
+        vector<int> lps(m);
+        lps[0] = 0;
+        int i = 1, len = 0, j = 0;
+        while (i < m) {
+            if (P[i] == P[len]) {
+                lps[i++] = ++len;
+            } else if (len > 0) {
+                len = lps[len - 1];
+            } else {
+                lps[i++] = 0;
+            }
+        }
+        i = 0;
+        int cnt = 0;
+        while (i < n) {
+            if (P[j] == T[i]) {
+                ++i;
+                ++j;
+                if (j == m) {
+                    ++cnt;
+                    j = lps[j - 1];
+                }
+            } else if (j > 0) {
+                j = lps[j - 1];
+            } else {
+                ++i;
+            }
+        }
+        return cnt;
+    }
+};

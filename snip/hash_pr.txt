@@ -1,0 +1,54 @@
+struct pr {
+    int x, y;
+
+    pr() {}
+
+    pr(int x, int y) : x{x}, y{y} {}
+
+    bool operator==(const pr &p) const {
+        return x == p.x && y == p.y;
+    }
+};
+
+struct Hsfun {
+    int operator()(const pr &p) const {
+        return (p.x * p.x % p.y + p.y * p.y % p.x) % (p.x);
+    }
+};
+
+// to sort vector
+bool cmp(const pr &a, const pr &b) {
+    return a.x == b.x ? a.y < b.y : a.x < b.x;
+}
+unordered_map<pr, int, Hsfun> mp;
+vector <pr> vec;
+/*
+struct pr {
+    int x, y;
+
+    pr() {}
+
+    pr(int x, int y) : x{x}, y{y} {}
+
+    bool operator==(const pr &p) const {
+        return x == p.x && y == p.y;
+    }
+
+    bool operator<(const pr &b) const { // default used for sorting samse as less
+        return x == b.x ? y < b.y : x < b.x;
+    }
+
+    bool operator>(const pr &b) const { // as greater
+        return x == b.x ? y < b.y : x < b.x;
+    }
+};
+
+struct Hsfun {
+    int operator()(const pr &p) const {
+        return (p.x * p.x % p.y + p.y * p.y % p.x) % (p.x);
+    }
+};
+
+unordered_map<pr, int, Hsfun> mp;
+vector <pr> vec;
+*/

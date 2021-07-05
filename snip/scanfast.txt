@@ -1,0 +1,24 @@
+#ifdef getchar_unlocked
+#define gcu getchar_unlocked
+#define pcu putchar_unlocked
+#else
+#define gcu getchar
+#define pcu putchar
+#endif
+ll scan() {
+    register ll vl = 0;
+    char c;
+    bool ng = 0;
+    c = gcu();
+    if (c == '-')
+        ng = 1;
+    while (c < '0' || c > '9') c = gcu();
+    while (c >= '0' && c <= '9') {
+        vl = (vl << 3) + (vl << 1) + c - '0';
+        c = gcu();
+    }
+    if (ng)
+        vl = -vl;
+
+    return vl;
+}

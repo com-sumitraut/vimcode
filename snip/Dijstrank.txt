@@ -1,0 +1,40 @@
+
+void Dijstrank() {
+    int n, m, k;
+    cin >> n >> m >> k;
+    vector < vector < pair < int, ll >> > g(n);
+    ll w;
+    for (int i = 0, u, v; i < m; ++i) {
+        cin >> u >> v >> w, --u, --v;
+        g[u].emplace_back(v, w);
+    }
+    vector <multiset<ll>> dis(n);
+    multiset <pair<ll, int>> st;
+    st.emplace(0, 0);
+    dis[0].insert(0);
+    while (!st.empty()) {
+        auto cur = *st.begin();
+        st.erase(st.begin());
+        auto d = cur.first;
+        auto u = cur.second;
+        for (auto &chld : g[u]) {
+            auto v = chld.first;
+            auto dv = chld.second;
+            auto ndisv = dv + d;
+            if (dis[v].size() < k) {
+                dis[v].emplace(ndisv);
+                st.emplace(ndisv, v);
+            } else if (*dis[v].rbegin() > ndisv) {
+                if (st.count({*dis[v].rbegin(), v})) {
+                    st.erase(st.find({*dis[v].rbegin(), v}));
+                }
+                dis[v].erase(--dis[v].end());
+                dis[v].emplace(ndisv);
+                st.emplace(ndisv, v);
+            }
+        }
+    }
+    for (auto &it : dis[n - 1])
+        cout << it << ' ';
+    cout << '\n';
+}

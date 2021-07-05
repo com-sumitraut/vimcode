@@ -1,0 +1,88 @@
+struct SgNode {
+    ll val, cnt, type, lazy;
+};
+
+class SgTree {
+   public:
+    int szsg(int nn) {
+        --nn;
+        nn |= nn >> 1;
+        nn |= nn >> 2;
+        nn |= nn >> 4;
+        nn |= nn >> 8;
+        nn |= nn >> 16;
+        ++nn;
+        return nn << 1;
+    }
+
+    vector<SgNode> Sg;
+    int n;
+
+    SgTree(int n_, const vector<ll> & ar) {
+        n = n_;
+        n_ = szsg(n_);
+        Sg.resize(n_);
+        build(0, 0, n - 1, ar);
+    }
+
+    void build(int nd, int sl, int sr, const vector<ll>& ar) {
+        int md = (sl + sr) >> 1, chl = nd << 1 | 1, chr = chl + 1;
+        if (sl == sr) {
+            Sg[nd].cnt = 1;
+            Sg[nd].val = ar[sl];
+            Sg[nd].type = No_Operation;
+            Sg[nd].lazy = 0;
+            return;
+        }
+        build(chl, sl, md, ar);
+        build(chr, md + 1, sr, ar);
+        Sg[nd].cnt = Sg[chl].cnt + Sg[chr].cnt;
+        Sg[nd].val = Sg[chl].val + Sg[chr].val;
+        Sg[nd].type = No_Operation;
+        Sg[nd].lazy = 0;
+    }
+
+    ll No_Operation = 0;
+
+    void apply(int id, int type, ll val) {
+        if (type == 1) {
+            Sg[id].type = type;
+            Sg[id].val = val * Sg[id].cnt;
+            Sg[id].lazy = val;
+        }
+        if (type == 2) {
+            Sg[id].val += val * Sg[id].cnt;
+            if (Sg[id].type == No_Operation) Sg[id].type = 2;
+            Sg[id].lazy += val;
+        }
+    }
+
+    void propogate(int nd, int chl, int chr) {
+        if (Sg[nd].type == No_Operation) return;
+        apply(chl, Sg[nd].type, Sg[nd].lazy);
+        apply(chr, Sg[nd].type, Sg[nd].lazy);
+        Sg[nd].type = No_Operation;
+        Sg[nd].lazy = 0;
+    }
+
+    void modify(int nd, int sl, int sr, int ql, int qr, ll val, int type) {
+        int md = (sl + sr) >> 1, chl = nd << 1 | 1, chr = chl + 1;
+        if (sl != sr) propogate(nd, chl, chr);
+        if (qr < sl || sr < ql) return;
+        if (ql <= sl && sr <= qr) {
+            apply(nd, type, val);
+            return;
+        }
+        modify(chl, sl, md, ql, qr, val, type);
+        modify(chr, md + 1, sr, ql, qr, val, type);
+        Sg[nd].val = Sg[chl].val + Sg[chr].val;
+    }
+
+    ll Rquery(int nd, int sl, int sr, int ql, int qr) {
+        int md = (sl + sr) >> 1, chl = nd << 1 | 1, chr = chl + 1;
+        if (sl != sr) propogate(nd, chl, chr);
+        if (qr < sl || sr < ql) return 0ll;
+        if (ql <= sl && sr <= qr) return Sg[nd].val;
+        return Rquery(chl, sl, md, ql, qr) + Rquery(chr, md + 1, sr, ql, qr);
+    }
+};

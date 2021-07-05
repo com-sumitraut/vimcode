@@ -1,0 +1,4 @@
+template<typename T> T gcd(T x,T y) { /* return y==0?x:gcd(y,x%y); */ T t; while(y!=0) { t=y; y=x%y; x=t; } return x; }
+
+//shortcut
+template<typename T> T gcdsh(T x,T y) { while (y) { x %= y; if (!x) return y; y %= x; } return x; /* return y==0?x:gcd(y,x%y); */}

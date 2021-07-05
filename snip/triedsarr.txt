@@ -1,0 +1,38 @@
+const int Sz = 30 * (1e6 + 4);
+
+class arrtrie {
+public:
+    int largest = 1, p, rv;
+    bool v;
+    int trie[Sz][2];
+
+    arrtrie() {
+        memset(trie, 0, sizeof(trie));
+    }
+
+    void insert(int x) {
+        p = 0;
+        for (int i = 30; ~i; --i) {
+            v = x >> i & 1;
+            if (!trie[p][v]) {
+                trie[p][v] = largest++;
+            }
+            p = trie[p][v];
+        }
+    }
+
+    int query(int x) {
+        p = 0;
+        rv = 0;
+        for (int i = 30; ~i; --i) {
+            v = x >> i & 1;
+            if (trie[p][v]) {
+                p = trie[p][v];
+            } else {
+                rv |= (1 << i);
+                p = trie[p][1 - v];
+            }
+        }
+        return rv;
+    }
+};

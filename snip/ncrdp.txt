@@ -1,0 +1,12 @@
+const int Sz = 1e4 + 1;
+long ncr[Sz][Sz];
+
+void funncr() {
+    for (int i = 0; i < Sz; ++i) {
+        ncr[i][0] = 1;
+        for (int j = 1; j < i; ++j) {
+            ncr[i][j] = (ncr[i - 1][j - 1] + ncr[i - 1][j]) % mod;
+        }
+        ncr[i][i] = 1;
+    }
+}

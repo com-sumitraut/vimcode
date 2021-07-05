@@ -1,0 +1,47 @@
+class trieNode {
+public:
+
+    trieNode *left, *right;
+
+    trieNode() : left{NULL}, right{NULL} {}
+
+    bool v;
+
+    void insert(int x) {
+        trieNode *cur = this;
+        for (int i = 30; ~i; --i) {
+            v = x >> i & 1;
+            if (v) {
+                if (!cur->right) cur->right = new trieNode();
+                cur = cur->right;
+            } else {
+                if (!cur->left) cur->left = new trieNode();
+                cur = cur->left;
+            }
+        }
+    }
+
+    int query(int x) {  // for min exor;
+        trieNode *cur = this;
+        int ans = 0;
+        for (int i = 30; ~i; --i) {
+            v = x >> i & 1;
+            if (v) {
+                if (cur->right) {
+                    cur = cur->right;
+                } else {
+                    cur = cur->left;
+                    ans |= 1 << i;
+                }
+            } else {
+                if (cur->left) {
+                    cur = cur->left;
+                } else {
+                    cur = cur->right;
+                    ans |= 1 << i;
+                }
+            }
+        }
+        return ans;
+    }
+};

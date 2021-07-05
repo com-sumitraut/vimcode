@@ -1,0 +1,4 @@
+Package    Version Latest Type
+---------- ------- ------ -----
+idna       2.10    3.1    wheel
+setuptools 41.2.0  56.2.0 wheel

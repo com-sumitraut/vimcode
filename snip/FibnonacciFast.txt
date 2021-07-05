@@ -1,0 +1,19 @@
+pair<ll, ll> Fib(int n) {
+    if (n == 0) return {0ll, 1ll};
+    auto p = Fib(n >> 1);
+    auto c = p.first * (((2 * p.second) % mod - p.first + mod) % mod) % mod;  //-->(2*k)th
+    auto d = ((p.second * p.second) % mod + (p.first * p.first) % mod) %  mod;  //-->(2*k+1)th
+    if (n & 1) return {d, (c + d) % mod};
+    return {c, d};
+}
+
+//without mod
+
+pair<ll, ll> Fib(int n) {
+    if (n == 0) return {0ll, 1ll};
+    auto p = Fib(n >> 1);
+    auto c = p.first * (2 * p.second - p.first);       //-->(2*k)th
+    auto d = p.second * p.second + p.first * p.first;  //-->(2*k+1)th
+    if (n & 1) return {d, c + d};
+    return {c, d};
+}

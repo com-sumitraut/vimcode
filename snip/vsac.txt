@@ -1,0 +1,71 @@
+// Coder: @SumitRaut
+#include <bits/stdc++.h>
+#define speedup ios::sync_with_stdio(false),cin.tie(nullptr),cout.tie(nullptr),cout.precision(12)
+using namespace std;
+#include <ext/pb_ds/assoc_container.hpp>
+#include <ext/pb_ds/tree_policy.hpp>
+using namespace __gnu_pbds;
+typedef tree<int,null_type,less<int>,rb_tree_tag,tree_order_statistics_node_update> ordered_set;
+typedef tree<int, int, less<int>, rb_tree_tag, tree_order_statistics_node_update> ordered_map;
+#define deb1(x) cerr<<#x<<' '<<x<<'\n'
+#define deb2(x,y) cerr<<#x<<' '<<x<<' '<<#y<<' '<<y<<'\n'
+#define deb3(x,y,z) cerr<<#x<<' '<<x<<' '<<#y<<' '<<y<<' '<<#z<<' '<<z<<'\n'
+#define sbc __builtin_popcount
+#define pb push_back
+#define pbk pop_back
+#define em emplace
+#define emb emplace_back
+#define ll long long
+#define ff first
+#define ss second
+const ll mod = 1e9+7;
+
+template<typename T> void smax(T& a, T b) { if(a<b) a=b; }
+template<typename T> void smin(T& a, T b) { if(a>b) a=b; }
+template<typename T> T pw(T a,T b) { T p=1,one=1; while(b) { if(b&one) p=p*a; a=a*a; b >>=1; } return p; }
+template<typename T> T pwm(T a,T b,T md=mod) { T p=1,one=1; while(b) { if(b&one) p=p*a%md; a=a*a%md; b >>=1; } return p; }
+
+template <typename T> istream &operator>>(istream &is, vector<T> &v) {
+	for(auto& it:v)
+		is>>it;
+	return is;
+}
+
+template <typename T, typename U>
+ostream &operator<<(ostream &os, const pair<T, U> &it) {
+	os << it.first << ' ' << it.second;
+	return os;
+}
+
+template <typename T>
+ostream &operator<<(ostream &os, const array<T, 2> &v) {
+	for (auto &it : v) os << it << ' ';
+	return os;
+}
+
+template <typename T> ostream &operator<<(ostream &os, const vector<T> &v) {
+	for (auto &it : v)
+		os << it << ' ';
+	return os;
+}
+
+#ifndef ONLINE_JUDGE
+class Timer { chrono::high_resolution_clock::time_point start_t, end_t; public: Timer() { start_t=chrono::high_resolution_clock::now(); } ~Timer() { end_t = chrono::high_resolution_clock::now(); auto duration = chrono::duration_cast<chrono::milliseconds>(end_t-start_t); cerr<<"\nRunTime: "<<duration.count()<<"ms"<<'\n'; } };
+#endif
+
+void solve() {
+	
+}
+int main()
+{
+	#ifndef ONLINE_JUDGE
+	Timer timer;
+	//freopen("int.txt","r",stdin);
+	//freopen("out.txt","w",stdout);
+	//freopen("err.txt","w",stderr);
+	#endif
+	speedup;
+	//int t; cin>>t; while(t--)
+		solve();
+	// system("pause");
+}

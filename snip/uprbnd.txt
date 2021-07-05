@@ -1,0 +1,11 @@
+
+int uprbnd(int arr[], int l, int n, int val) {
+    while (l < n) {
+        int m = l + (n - l) / 2;
+        if (arr[m] > val)
+            n = m;
+        else
+            l = m + 1;
+    }
+    return l;
+}

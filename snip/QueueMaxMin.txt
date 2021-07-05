@@ -1,0 +1,40 @@
+struct Stack {
+    vector<ll> s, smx{LLONG_MIN}, smn{LLONG_MAX};
+    void push(ll x) {
+        s.pb(x);
+        smx.pb(::max(x, smx.bk()));
+        smn.pb(::min(x, smn.bk()));
+    }
+    ll pop() {
+        ll res = s.bk();
+        s.pbk();
+        smx.pbk();
+        smn.pbk();
+        return res;
+    }
+    ll min() { return smn.bk(); }
+    ll max() { return smx.bk(); }
+    bool empty() { return s.empty(); }
+};
+
+struct Queue {
+    Stack s1, s2;
+    int size = 0;
+    void push(ll x) {
+        ++size;
+        s2.push(x);
+    }
+    void pop() {
+        if (s1.empty()) {
+            while (!s2.empty()) {
+                s1.push(s2.pop());
+            }
+        }
+        --size;
+        s1.pop();
+    }
+    ll max() { return ::max(s1.max(), s2.max()); }
+    ll min() { return ::min(s1.min(), s2.min()); }
+    bool empty() { return size == 0; }
+};
+

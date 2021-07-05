@@ -1,0 +1,77 @@
+typedef ll item;
+
+class SgTree {
+public:
+    int szsg(int nn) {
+        --nn;
+        nn |= nn >> 1;
+        nn |= nn >> 2;
+        nn |= nn >> 4;
+        nn |= nn >> 8;
+        nn |= nn >> 16;
+        ++nn;
+        return nn << 1;
+    }
+
+    vector <ll> lazy;
+    vector <ll> Sg;
+    int n;
+
+    SgTree(int n_, const vector <item> &ar) {
+        n = n_;
+        n_ = szsg(n_);
+        lazy.resize(n_, No_Operation);
+        Sg.resize(n_);
+        build(0, 0, n - 1, ar);
+    }
+
+    void build(int nd, int sl, int sr, const vector <item> &ar) {
+        int md = (sl + sr) >> 1, chl = nd << 1 | 1, chr = chl + 1;
+        if (sl == sr) {
+            Sg[nd] = ar[sl];
+            return;
+        }
+        build(chl, sl, md, ar);
+        build(chr, md + 1, sr, ar);
+        combine(nd, chl, chr);
+    }
+
+    void combine(int nd, int chl, int chr) {
+        Sg[nd] = Sg[chl] | Sg[chr];
+    }
+
+    ll No_Operation = -1;
+
+    void apply(int id, ll val) {
+        lazy[id] = val;
+        Sg[id] = val;
+    }
+
+    void propogate(int nd, int chl, int chr) {
+        if (lazy[nd] == No_Operation) return;
+        apply(chl, lazy[nd]);
+        apply(chr, lazy[nd]);
+        lazy[nd] = No_Operation;
+    }
+
+    void modify(int nd, int sl, int sr, int ql, int qr, ll val) {
+        int md = (sl + sr) >> 1, chl = nd << 1 | 1, chr = chl + 1;
+        if (sl != sr) propogate(nd, chl, chr);
+        if (qr < sl || sr < ql) return;
+        if (ql <= sl && sr <= qr) {
+            apply(nd, val);
+            return;
+        }
+        modify(chl, sl, md, ql, qr, val);
+        modify(chr, md + 1, sr, ql, qr, val);
+        combine(nd, chl, chr);
+    }
+
+    item Rquery(int nd, int sl, int sr, int ql, int qr) {
+        int md = (sl + sr) >> 1, chl = nd << 1 | 1, chr = chl + 1;
+        if (sl != sr) propogate(nd, chl, chr);
+        if (qr < sl || sr < ql) return 0ll;
+        if (ql <= sl && sr <= qr) return Sg[nd];
+        return Rquery(chl, sl, md, ql, qr) | Rquery(chr, md + 1, sr, ql, qr);
+    }
+};

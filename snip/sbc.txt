@@ -1,0 +1,8 @@
+ll sbc(ll n) {
+    int re = 0;
+    while (n) {
+        n &= (n - 1ll);
+        ++re;
+    }
+    return re;
+}

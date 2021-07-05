@@ -1,0 +1,84 @@
+const ll inf = 1e18;
+
+struct SgNode {
+    ll cnt, add, Mx, Mn;
+    SgNode() {}
+    SgNode(ll cnt_, ll add_, ll Mx_, ll Mn_)
+        : cnt{cnt_}, add{add_}, Mx{Mx_}, Mn{Mn_} {}
+    void bMerge(const SgNode &lhs, const SgNode &rhs) {
+        if (lhs.cnt == 0) {
+            *this = rhs;
+            return;
+        }
+        if (rhs.cnt == 0) {
+            *this = lhs;
+            return;
+        }
+
+        cnt = lhs.cnt + rhs.cnt;
+        add = lhs.add + rhs.add;
+        Mn = lhs.Mn;
+        Mx = rhs.Mx;
+        if (lhs.cnt > 0 && rhs.cnt > 0 && cnt && lhs.Mx > rhs.Mn) {
+            add += (lhs.Mx - rhs.Mn) * rhs.cnt;
+            Mx += lhs.Mx - rhs.Mn;
+        }
+    }
+};
+
+ostream &operator<<(ostream &os, const SgNode toPt) {
+    os << toPt.cnt << ' ' << toPt.add << ' ' << toPt.Mx << ' ' << toPt.Mn;
+    return os;
+}
+
+class SgTree {
+   public:
+    int szsg(int nn) {
+        --nn;
+        nn |= nn >> 1;
+        nn |= nn >> 2;
+        nn |= nn >> 4;
+        nn |= nn >> 8;
+        nn |= nn >> 16;
+        ++nn;
+        return nn << 1;
+    }
+
+    vector<SgNode> Sg;
+    int n;
+
+    SgTree(int n_) {
+        n = n_;
+        n_ = szsg(n_);
+        Sg.resize(n_);
+        build(0, 0, n - 1);
+    }
+
+    void build(int nd, int sl, int sr) {
+        int md = (sl + sr) >> 1, chl = nd << 1 | 1, chr = chl + 1;
+        if (sl == sr) {
+            Sg[nd] = {1ll, 0ll, ar[sl], ar[sl]};
+            return;
+        }
+        build(chl, sl, md);
+        build(chr, md + 1, sr);
+        Sg[nd].bMerge(Sg[chl], Sg[chr]);
+        deb(sl, sr, Sg[nd]);
+    }
+
+    SgNode qMerge(const SgNode lhs, const SgNode rhs) {
+        SgNode res;
+        res.bMerge(lhs, rhs);
+        return res;
+    }
+
+    SgNode Rquery(int nd, int sl, int sr, int ql, int qr) {
+        int md = (sl + sr) >> 1, chl = nd << 1 | 1, chr = chl + 1;
+        if (qr < sl || sr < ql) return {0ll, 0ll, -inf, inf};
+        if (ql <= sl && sr <= qr) return Sg[nd];
+		auto lhs=Rquery(chl, sl, md, ql, qr);
+		auto rhs=Rquery(chr, md + 1, sr, ql, qr);
+		return qMerge(lhs,rhs);
+    }
+};
+

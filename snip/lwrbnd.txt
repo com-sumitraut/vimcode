@@ -1,0 +1,11 @@
+int lwrbnd(int arr[], int l, int n, int val) {
+    int m;
+    while (l < n) {
+        m = l + (n - l) / 2;
+        if (arr[m] < val)
+            l = m + 1;
+        else
+            n = m;
+    }
+    return l;
+}

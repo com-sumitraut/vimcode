@@ -1,0 +1,82 @@
+class trie {
+public:
+    bool isend;
+    trie *chr[26];
+
+    trie() {
+        isend = false;
+        for (int i = 0; i < 26; i++) {
+            chr[i] = nullptr;
+        }
+    }
+
+    void insert(string);
+
+    bool search(string);
+
+    bool dlt(trie *&, string, bool &);
+
+    bool hvchld(trie const *);
+};
+
+void trie::insert(string str) {
+    trie *cur = this;
+    for (auto &it:str) {
+        if (cur->chr[it - 'a'] == nullptr) {
+            cur->chr[it - 'a'] = new trie();
+        }
+        cur = cur->chr[it - 'a'];
+    }
+    cur->isend = true;
+}
+
+bool trie::search(string str) {
+    if (this == nullptr) { return false; }
+    trie *cur = this;
+    for (auto &it:str) {
+        cur = cur->chr[it - 'a'];
+        if (!cur) {
+            return false;
+        }
+    }
+    return cur->isend;
+}
+
+bool trie::hvchld(trie const *cur) {
+    for (int i = 0; i < 26; i++) {
+        if (cur->chr[i]) {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool trie::dlt(trie *&cur, string str, bool &d) {
+    if (cur == nullptr) {
+        return false;
+    }
+    if (str.length()) {
+        if (cur != nullptr && cur->chr[str[0] - 'a'] != nullptr && dlt(cur->chr[str[0] - 'a'], str.substr(1), d) &&
+            cur->isend == false) {
+            if (!hvchld(cur)) {
+                delete cur;
+                cur = nullptr;
+                return true;
+            } else {
+                return false;
+            }
+        }
+    }
+    if (str.length() == 0 && cur->isend) {
+        d = true;
+        if (!hvchld(cur)) {
+            delete cur;
+            cur = nullptr;
+            return true;
+        } else {
+            cur->isend = false;
+            return false;
+        }
+    }
+    return false;
+}

@@ -1,0 +1,67 @@
+int N, Hp[1000005];
+
+void swap(int *a, int *b) {
+    int tmp = *a;
+    *a = *b;
+    *b = tmp;
+}
+
+void heapify(int i) {
+    /*
+    int largest=i,r=i<<1|1,l=r++;
+    if(l<N&&Hp[l]>Hp[largest])
+        largest=l;
+    if(r<N&&Hp[r]>Hp[largest])
+        largest=r;
+    if(largest!=i) {
+        swap(Hp+i,Hp+largest);
+        heapify(Hp,N,largest);
+    }
+    */
+    int largest, l, r;
+    while (1) {
+        largest = i, r = i << 1 | 1, l = r++;
+        if (l < N && Hp[l] > Hp[largest])
+            largest = l;
+        if (r < N && Hp[r] > Hp[largest])
+            largest = r;
+        if (largest == i)
+            break;
+        else
+            swap(Hp + i, Hp + largest), i = largest;
+    }
+}
+
+void build() {
+    for (int i = N / 2 - 1; i >= 0; i--)
+        heapify(i);
+}
+
+void heapsort() {
+    build();
+    for (int i = N - 1; ~i; --i) {
+        swap(Hp, Hp + i);
+        heapify(0);
+    }
+}
+
+void push(int vl) {
+    Hp[N] = vl;
+    int j = N, p = (N - 1) >> 1;
+    while (j && Hp[p] < Hp[j]) {
+        swap(Hp + j, Hp + p);
+        j = p;
+        p = (j - 1) >> 1;
+    }
+    ++N;
+}
+
+int top() {
+    return N ? Hp[0] : -1;
+}
+
+void pop() {
+    --N;
+    swap(Hp, Hp + N);
+    heapify(0);
+}

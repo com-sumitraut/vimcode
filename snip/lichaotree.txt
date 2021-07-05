@@ -1,0 +1,32 @@
+const ll inf = 1e17;
+class LiChaoTree {
+   public:
+    const int lwrlimit, uprlimit;
+    vector<array<ll, 2>> LiChao;
+    // LiChaoTree() {}
+    LiChaoTree(int lwrlimit_, int uprlimit_)
+        : lwrlimit{lwrlimit_},
+          uprlimit{uprlimit_},
+          LiChao(4 * (uprlimit - lwrlimit + 1), {0ll, inf}) {}
+    ll val(array<ll, 2> &mc, int &x) { return mc[0] * x + mc[1]; }
+    void add(array<ll, 2> line, int nd = 0, int sl = 0, int sr = 1e6) {
+        int md = (sl + sr) >> 1;
+        bool left = val(line, sl) < val(LiChao[nd], sl);
+        bool mid = val(line, md) < val(LiChao[nd], md);
+        if (mid) swap(LiChao[nd], line);
+        if (sl == sr) return;
+        if (left != mid)
+            add(line, 2 * nd + 1, sl, md);
+        else
+            add(line, nd * 2 + 2, md + 1, sr);
+    }
+    ll query(int x, int nd = 0, int sl = 0, int sr = 1e6) {
+        int md = (sl + sr) >> 1;
+        ll cur = val(LiChao[nd], x);
+        if (sl == sr) return cur;
+        if (x < md)
+            return min(cur, query(x, 2 * nd + 1, sl, md));
+        else
+            return min(cur, query(x, 2 * nd + 2, md + 1, sr));
+    }
+};

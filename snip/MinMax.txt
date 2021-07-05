@@ -1,0 +1,7 @@
+int max(int a,int b) { if(a>b) return a; return b; }
+int min(int a,int b) { if(a<b) return a; return b; }
+void smin(int* a, int b) { if(*a>b) *a=b; }
+void smax(int* a, int b) { if(*a<b) *a=b; }
+void swap(int *a,int *b) { int tmp=*a; *a=*b; *b=tmp; }
+ll pw(ll a,ll b) { ll p=1,one=1; while(b) { if(b&one) p=p*a; a=a*a; b >>=1; } return p; }
+ll pwm(ll a,ll b) { ll p=1,one=1; while(b) { if(b&one) p=p*a%mod; a=a*a%mod; b >>=1; } return p; }

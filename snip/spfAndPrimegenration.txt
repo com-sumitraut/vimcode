@@ -1,0 +1,14 @@
+const int Nax=int(1e6)+1;
+int Spf[Nax];
+vi pr;
+void generatSpf() {
+	for(int i=2;i<Nax;++i) {
+		if(Spf[i]==0) {
+			Spf[i]=i;
+			pr.pb(i);
+		}
+		for(int j=0;j<sz(pr)&&pr[j]<=Spf[i]&&i*pr[j]<Nax;++j) {
+			Spf[i*pr[j]]=pr[j];
+		}
+	}
+}
